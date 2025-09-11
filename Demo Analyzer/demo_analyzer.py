@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 from IPython.display import clear_output
+from demoparser2 import DemoParser
 
 SPAWN_COORDINATES = {
     'de_ancient': [(-256.0, 1728.0),
@@ -141,7 +142,7 @@ def get_demo_params(parser):
 
         # Getting  self.MATCH_START_TICK
         try:
-            params.append(parser.parse_event("round_announce_match_start").dropna()['tick'][0])
+            params.append(parser.parse_event("round_announce_match_start").dropna()['tick'][parser.parse_event("round_announce_match_start").shape[0]-1])
         except:
             print("Params might be incorrect")
             params.append(parser.parse_event("round_start").dropna()['tick'][0])
@@ -178,14 +179,110 @@ def normalize_coords(x_game, y_game, pos_x, pos_y, scale, img_size):
         y_img = (pos_y - y_game) / scale
         return pd.concat([x_img, y_img], axis=1)
 
+def get_stats(match_event_df, names=[], side='CT/T'):
+    """
+    Get match stats summary.
+    - match_event_df: dataframe with match important events
+    - name: player name
+    - side: side to analyze (CT, T or CT/T) (default = CT/T)
+
+    return:
+    - stats_df: Dataframe with match stats
+    """
+    stats_df = pd.DataFrame()
+
+    match_event_df = match_event_df.reset_index().drop('index', axis=1)
+    suicides = match_event_df.loc[match_event_df['attacker_name'] == match_event_df['user_name']]
+    match_event_df_k = match_event_df
+    match_event_df_d = match_event_df
+
+    if side in ["CT", "T"]:
+        if side == 'CT':
+            match_event_df_d = match_event_df.loc[match_event_df['side'] == 'CT']
+            match_event_df_k = match_event_df.loc[match_event_df['side'] == 'T']
+        elif side == 'T':
+            match_event_df_d = match_event_df.loc[match_event_df['side'] == 'T']
+            match_event_df_k = match_event_df.loc[match_event_df['side'] == 'CT']
+    elif side != 'CT/T':
+        raise ValueError("Side should be in [CT,T]")
+
+    if not names:
+        names = set(match_event_df['attacker_name'].unique().tolist() + match_event_df['user_name'].unique().tolist())
+
+    for name in names:
+        # Getting kills
+        kills = match_event_df_k.loc[match_event_df['attacker_name'] == name]
+        suicide = suicides.loc[suicides['attacker_name'] == name]
+        n_kills = len(kills) - len(suicide)
+
+        # Getting headshots percentage
+        headshots = kills.loc[kills['headshot'] == True]
+        n_headshots = len(headshots)
+
+        if n_kills != 0:
+            headshot_percentage = round((n_headshots/n_kills)*100,2)
+        else:
+            headshot_percentage = 0
+
+        # Getting deaths
+        deaths = match_event_df_d.loc[match_event_df['user_name'] == name]
+        n_deaths = len(deaths)
+
+        # Getting assists
+        assists = match_event_df_k.loc[match_event_df['assister_name'] == name]
+        n_assists = len(assists)
+
+        # Getting flash assists
+        f_assists = assists.loc[(assists['assistedflash'] == True)]
+        n_af = len(f_assists)
+
+        # K/D Ratio
+        if n_deaths != 0:
+            kd_ratio = round(n_kills/n_deaths,2)
+        else:
+            kd_ratio = n_kills
+
+        stats = {
+            'Player': name,
+            'Kills': n_kills,
+            'Assists': n_assists,
+            'Deaths': n_deaths,
+            '% HS': headshot_percentage,
+            'Flash Assists': n_af,
+            'K/D Ratio': kd_ratio
+        }
+
+        stats_df = pd.concat([stats_df, pd.DataFrame(stats, index=[0])], axis=0)
+
+        
+
+    return stats_df #.reset_index().drop('index', axis=1)
 
 class Analyzer:
 
-    def __init__(self, parser):
-        self.parser = parser
+    def __init__(self, demo_url):
+        self.parser = DemoParser(demo_url)
         self.TICK_RATE, self.MATCH_START_TICK, self.MATCH_RT_HALF_END_TICK, self.MATCH_END_TICK, self.N_ROUNDS, self.MAP_NAME = get_demo_params(self.parser)
 
-    
+    def get_match_event_df(self, player_coords):
+        """
+        Get match important events dataframe.
+        - self.parser: demo self.parser object
+        - player_coords: dataframe with player coordinates every tick
+
+        return:
+        - match_event_df: dataframe with match important events
+        """
+        match_event_df = self.parser.parse_event('player_death')
+
+        #match_event_df = match_event_df.join(player_coords[['tick', 'round']].drop_duplicates().set_index('tick'), on='tick')
+        match_event_df = match_event_df.merge(player_coords[['tick', 'round','name','side']].drop_duplicates(), left_on=['tick','user_name'], right_on=['tick','name'] , how='left')
+        match_event_df = match_event_df.dropna(subset=['round'])
+        match_event_df = match_event_df.loc[match_event_df['tick'] > self.MATCH_START_TICK]
+        match_event_df['side_k'] = match_event_df['side'].apply(lambda x: 'T' if x == 'CT' else 'CT')
+
+        return match_event_df[['attacker_name','user_name','headshot','assister_name','assistedflash', 'revenge','tick', 'round','side','side_k']]
+
     def get_sides(self, player_id=[], team_num=3):
 
         start_tick = self.MATCH_RT_HALF_END_TICK+10*self.TICK_RATE
@@ -272,9 +369,9 @@ class Analyzer:
 
 
         print("Filtering warmup ticks...")
-        coords_df = coords_df.loc[coords_df['tick'] > self.MATCH_START_TICK]
+        coords_df = coords_df.loc[coords_df['tick'] >= self.MATCH_START_TICK]
         print("Filtering after game ticks...")
-        coords_df = coords_df.loc[coords_df['tick'] < self.MATCH_END_TICK]
+        coords_df = coords_df.loc[coords_df['tick'] <= self.MATCH_END_TICK]
 
         print("Normalizing...")
         # Normalizing coords
@@ -349,11 +446,6 @@ class Analyzer:
         print("Filtering Alive ticks...")
         player_coords = player_coords.loc[player_coords['is_alive'] == True]
 
-        # print("Excluding Spawns Positions...")
-        # for pos in SPAWN_COORDINATES[self.MAP_NAME]:
-        #     player_coords['distance_to_spawn_pos'] = np.sqrt((player_coords['X']-pos[0])**2 + (player_coords['Y']-pos[1])**2)
-        # player_coords = player_coords.loc[player_coords['distance_to_spawn_pos'] >= SPAWN_POS_THRESHOLD]
-
         print("Getting round_ticks...")
         round_ticks = self.get_round_ticks(lower_limit, upper_limit)
         print("Filtering round period...")
@@ -419,11 +511,15 @@ class Analyzer:
         print("Getting deaths coordinates")
         deaths = self.parser.parse_event("player_death", player= ['X', 'Y', 'Z'])
         
-        aux = pd.DataFrame()
-        for name in names:
-            aux = pd.concat([aux,deaths.loc[deaths['user_name'] == name]], axis=0)
+        death_aux = pd.DataFrame()
+        players_coords_aux = pd.DataFrame()
 
-        deaths = aux[['user_X','user_Y','user_Z','tick','user_name']]
+        for name in names:
+            death_aux = pd.concat([death_aux,deaths.loc[deaths['user_name'] == name]], axis=0)
+            players_coords_aux = pd.concat([players_coords_aux,players_coords.loc[players_coords['name'] == name]], axis=0)
+
+        players_coords = players_coords_aux
+        deaths = death_aux[['user_X','user_Y','user_Z','tick','user_name']]
         deaths = pd.DataFrame(deaths.reset_index().drop('index', axis=1))
         deaths.columns = ['X','Y','Z','death_tick','name']
         deaths['floor'] = deaths['Z'].apply(lambda x: 0 if x < NUKE_Z_THRESHOLD else 1)
@@ -492,11 +588,14 @@ class Analyzer:
         print("Getting kills coordinates")
         kills = self.parser.parse_event("player_death", player= ['X', 'Y', 'Z'])
         
-        aux = pd.DataFrame()
+        kills_aux = pd.DataFrame()
+        players_coords_aux = pd.DataFrame()
         for name in names:
-            aux = pd.concat([aux,kills.loc[kills['attacker_name'] == name]], axis=0)
+            kills_aux = pd.concat([kills_aux,kills.loc[kills['attacker_name'] == name]], axis=0)
+            players_coords_aux = pd.concat([players_coords_aux,players_coords.loc[players_coords['name'] == name]], axis=0)
 
-        kills = aux[['user_X','user_Y','user_Z','tick','attacker_name']]
+        players_coords = players_coords_aux
+        kills = kills_aux[['user_X','user_Y','user_Z','tick','attacker_name']]
         kills = pd.DataFrame(kills.reset_index().drop('index', axis=1))
         kills.columns = ['X','Y','Z','kill_tick','name']
         kills['floor'] = kills['Z'].apply(lambda x: 0 if x < NUKE_Z_THRESHOLD else 1)
@@ -645,9 +744,12 @@ class Analyzer:
             plt.plot(kill_marks['X'], kill_marks['Y'], 'x', markersize=15, color='g')
             plt.axis('off')
 
-    def map_analysis(self, player_coords,names=[], lower_limit=0,upper_limit=115, half=0, side='CT/T',heatmap=True, deaths=False, kills=0, bomb_plt=False, round=0,verbose=0):
+    def map_graph_analysis(self,names=[], lower_limit=0,upper_limit=115, half=0, side='CT/T',heatmap=True, deaths=False, kills=0, bomb_plt=False, round=0,verbose=0):
 
         # Adjusting heatmap params
+
+        player_coords = self.get_player_coords(verbose=verbose)
+
         if names == []:
             input_names = [n for n in player_coords['name'].unique()]
 
@@ -689,3 +791,29 @@ class Analyzer:
             self.generate_death_marks(death_coords)
         if kills:
             self.generate_kill_marks(kill_coords)
+
+    def map_stats_analysis(self, names=[], side='CT/T'):
+        """
+        Get match stats summary.
+        - match_event_df: dataframe with match important events
+        - name: player name
+        - side: side to analyze (CT, T or CT/T) (default = CT/T)
+
+        return:
+        - stats_df: Dataframe with match stats
+        """
+
+        match_event_df = self.get_match_event_df(self.get_player_coords())
+
+        if names == []:
+            input_names = list(set([n for n in match_event_df['attacker_name'].unique().tolist() + match_event_df['user_name'].unique().tolist()]))
+        else:
+            input_names = names
+
+        stats_df = get_stats(match_event_df, input_names, side)
+
+        if not stats_df.empty:
+            clear_output()
+            return stats_df.reset_index().sort_values(by='K/D Ratio', ascending=False).drop('index', axis=1)
+        else:
+            raise ValueError("Player name(s) probably incorrect")

@@ -106,15 +106,15 @@ MAPS_OVERVIEWS = {
 }
 
 MAPS_URL = {
-     "de_ancient":    'CS2_maps_radar\de_ancient_radar_psd.png' ,
-     "de_anubis":     'CS2_maps_radar\de_anubis_radar_psd.png' ,
-     "de_dust2":      'CS2_maps_radar\de_dust2_radar_psd.png' ,
-     "de_inferno":    'CS2_maps_radar\de_inferno_radar_psd.png' ,
-     "de_mirage":     'CS2_maps_radar\de_mirage_radar_psd.png' ,
-     "de_nuke_lower": 'CS2_maps_radar\de_nuke_lower_radar_psd.png' ,
-     "de_nuke":       'CS2_maps_radar\de_nuke_radar_psd.png' ,
-     "de_overpass":   'CS2_maps_radar\de_overpass_radar_psd.png',
-     "de_train":      'CS2_maps_radar\de_train_radar_psd.png'
+     "de_ancient":    'assets\CS2_maps_radar\de_ancient_radar_psd.png' ,
+     "de_anubis":     'assets\CS2_maps_radar\de_anubis_radar_psd.png' ,
+     "de_dust2":      'assets\CS2_maps_radar\de_dust2_radar_psd.png' ,
+     "de_inferno":    'assets\CS2_maps_radar\de_inferno_radar_psd.png' ,
+     "de_mirage":     'assets\CS2_maps_radar\de_mirage_radar_psd.png' ,
+     "de_nuke_lower": 'assets\CS2_maps_radar\de_nuke_lower_radar_psd.png' ,
+     "de_nuke":       'assets\CS2_maps_radar\de_nuke_radar_psd.png' ,
+     "de_overpass":   'assets\CS2_maps_radar\de_overpass_radar_psd.png',
+     "de_train":      'assets\CS2_maps_radar\de_train_radar_psd.png'
 }
 
 SPAWN_POS_THRESHOLD = 15
@@ -384,7 +384,7 @@ class Analyzer:
 
         return coords_df
 
-    def get_round_ticks(self, lower_limit, upper_limit):
+    def get_round_ticks(self, upper_limit):
         """
         Get round ticks.
         - self.parser: demo self.parser object
@@ -405,15 +405,19 @@ class Analyzer:
             dif = len(round_start_ticks)-len(round_end_ticks)
             round_start_ticks = round_start_ticks[dif::]
 
-        lower_limit_ticks  = np.add(round_start_ticks, lower_limit*self.TICK_RATE)
-        upper_limit_ticks = np.add(round_end_ticks, upper_limit*self.TICK_RATE)
+        lower_limit_ticks  = round_start_ticks
+
+        if upper_limit > 115:
+            upper_limit_ticks = round_end_ticks
+
+        upper_limit_ticks = np.add(round_start_ticks, upper_limit*self.TICK_RATE)
 
         # Returning list of tuples (start, stop) ticks of each round
         round_ticks = [(a, b) for a,b in zip(lower_limit_ticks,upper_limit_ticks)]
 
         return round_ticks
 
-    def set_heatmap_data(self, player_coords, names=[] , lower_limit=0, upper_limit=115, half=0, side='CT/T', bomb_plt=False, round=0,verbose=0):
+    def set_heatmap_data(self, player_coords, names=[], round_seconds=False, upper_limit=0, half=0, side='CT/T', bomb_plt=False, round=0,verbose=0):
         """
         Make heatmap coordinates.
         - self.parser: demo self.parser object
@@ -427,10 +431,13 @@ class Analyzer:
         - heatmap_df: dataframe with heatmap coordinates
         """
 
-        if upper_limit < 0 or lower_limit < 0:
-            raise ValueError("Round time limiters must be in [0, 115] seconds")
-        elif upper_limit > 115 or lower_limit > 115:
-            raise ValueError("Round time limiters must be in [0, 115] seconds")
+        if round_seconds:
+            if upper_limit < 0:
+                raise ValueError("Round time limiters must be in [0, 115] seconds")
+            elif upper_limit > 115:
+                raise ValueError("Round time limiters must be in [0, 115] seconds")
+        else:
+            upper_limit = 155
         
         if names:
             aux = pd.DataFrame()
@@ -447,7 +454,7 @@ class Analyzer:
         player_coords = player_coords.loc[player_coords['is_alive'] == True]
 
         print("Getting round_ticks...")
-        round_ticks = self.get_round_ticks(lower_limit, upper_limit)
+        round_ticks = self.get_round_ticks(upper_limit)
         print("Filtering round period...")
         heatmap_df = pd.DataFrame()
         # Filtering coordinates only for the round period chosen
@@ -645,13 +652,15 @@ class Analyzer:
 
         return kills
 
-    def generate_map_image(self, title="Heatmap"):
+    def generate_map_image(self, title=''):
         
+        print('Generating map image...')
         if self.MAP_NAME == 'de_nuke':
             map_image = mpimg.imread(MAPS_URL['de_nuke'])
             map_image_lower = mpimg.imread(MAPS_URL['de_nuke_lower'])
-            plt.figure(figsize=(28,14))
-            plt.title(title)
+            fig = plt.figure(figsize=(32,16))
+            if title != '':
+                plt.title(title)
             plt.axis('off')
             plt.subplot(1, 2, 1)
             plt.imshow(map_image, extent=[0, IMAGE_SIZE, IMAGE_SIZE,0])
@@ -662,11 +671,13 @@ class Analyzer:
         else:
             map_image = mpimg.imread(MAPS_URL[self.MAP_NAME])
 
-            plt.figure(figsize=(14,14))
-            plt.title(title)
+            fig = plt.figure(figsize=(16,16))
+            if title != '':
+                plt.title(title)
             plt.imshow(map_image, extent=[0, IMAGE_SIZE, IMAGE_SIZE,0])
             plt.axis('off')
-        
+        return fig
+
     def generate_heatmap(self, heatmap_df):
         """
         Generate heat map.
@@ -675,6 +686,8 @@ class Analyzer:
         """
         
         cmap = sns.color_palette("YlOrBr", as_cmap=True)
+
+        print('Generating heatmap...')
 
         if self.MAP_NAME == 'de_nuke':
             heatmap_df_higher = heatmap_df.loc[heatmap_df['floor'] == 1]
@@ -693,7 +706,7 @@ class Analyzer:
             # Generating heatmap
             sns.kdeplot(x=heatmap_df["X"], y=heatmap_df["Y"], fill=True, alpha=0.2,thresh=0.05, levels=100, cmap=cmap)
             plt.axis('off')
-        
+
     def generate_death_marks(self, death_marks=()):
         """
         Generate heat map.
@@ -701,6 +714,8 @@ class Analyzer:
         - heatmap_coords: dataframe with heatmap coordinates
         """
         cmap = sns.color_palette("YlOrBr", as_cmap=True)
+
+        print('Generating death marks...')
 
         if self.MAP_NAME == 'de_nuke':
             deaths_coords_higher = death_marks.loc[death_marks['floor'] == 1]
@@ -727,6 +742,8 @@ class Analyzer:
         """
         cmap = sns.color_palette("YlOrBr", as_cmap=True)
 
+        print('Generating kill marks...')
+
         if self.MAP_NAME == 'de_nuke':
             kill_coords_higher = kill_marks.loc[kill_marks['floor'] == 1]
             kill_coords_lower = kill_marks.loc[kill_marks['floor'] == 0]
@@ -744,10 +761,9 @@ class Analyzer:
             plt.plot(kill_marks['X'], kill_marks['Y'], 'x', markersize=15, color='g')
             plt.axis('off')
 
-    def map_graph_analysis(self,names=[], lower_limit=0,upper_limit=115, half=0, side='CT/T',heatmap=True, deaths=False, kills=0, bomb_plt=False, round=0,verbose=0):
+    def map_graph_analysis(self,names=[],round_seconds=False,upper_limit=0, half=0, side='CT/T',heatmap=True, deaths=False, kills=0, bomb_plt=False, round=0,verbose=0):
 
         # Adjusting heatmap params
-
         player_coords = self.get_player_coords(verbose=verbose)
 
         if names == []:
@@ -755,7 +771,7 @@ class Analyzer:
 
         else:
             input_names = names
-        heatmap_df = self.set_heatmap_data(player_coords,names=input_names, lower_limit=lower_limit, upper_limit=upper_limit,half=half, side=side,bomb_plt=bomb_plt, round=round,verbose=verbose)
+        heatmap_df = self.set_heatmap_data(player_coords,names=input_names,round_seconds=round_seconds, upper_limit=upper_limit,half=half, side=side,bomb_plt=bomb_plt, round=round,verbose=verbose)
     
         if not heatmap_df.empty:
             if half != 0 and side == 'CT/T':
@@ -778,11 +794,8 @@ class Analyzer:
         half_cardinality = {0 : 'Full Game', 1 : 'First', 2 : 'Second'}
         title = f"Heatmap for {side} side ({self.MAP_NAME}, {half_cardinality[half]} Half)"
     
-        # Cleaning the output terminal
-        clear_output()
-    
         # Generating map image
-        self.generate_map_image(title)
+        fig = self.generate_map_image(title)
 
         # Generating features
         if heatmap:
@@ -791,6 +804,9 @@ class Analyzer:
             self.generate_death_marks(death_coords)
         if kills:
             self.generate_kill_marks(kill_coords)
+
+        # Cleaning the output terminal
+        clear_output()
 
     def map_stats_analysis(self, names=[], side='CT/T'):
         """
@@ -817,3 +833,50 @@ class Analyzer:
             return stats_df.reset_index().sort_values(by='K/D Ratio', ascending=False).drop('index', axis=1)
         else:
             raise ValueError("Player name(s) probably incorrect")
+        
+    def generate_dashboard_graph_analysis(self,player_coords,names=[],round_seconds=False,upper_limit=0, half=0, side='CT/T',heatmap=True, deaths=False, kills=0, bomb_plt=False, round=0,verbose=0):
+
+        # Adjusting heatmap params
+
+        if names == []:
+            input_names = [n for n in player_coords['name'].unique()]
+
+        else:
+            input_names = names
+        heatmap_df = self.set_heatmap_data(player_coords,names=input_names,round_seconds=round_seconds, upper_limit=upper_limit,half=half, side=side,bomb_plt=bomb_plt, round=round,verbose=verbose)
+    
+        if not heatmap_df.empty:
+            if half != 0 and side == 'CT/T':
+                side = list(heatmap_df['side'].unique())[0]
+            elif half == 0 and side != 'CT/T':
+                half = list(heatmap_df['half'].unique())[0]
+        else:
+            raise ValueError("Player name(s) probably incorrect")
+
+        if deaths:
+            death_coords = self.get_death_coords(player_coords, input_names, half, side=side, bomb_plt=bomb_plt, round=round,verbose=verbose)
+        else:
+            death_coords = ()
+
+        if kills:
+            kill_coords = self.get_kills_coords(player_coords, input_names, half, side=side, bomb_plt=bomb_plt, round=round)
+        else:
+            kill_coords = ()
+    
+        half_cardinality = {0 : 'Full Game', 1 : 'First', 2 : 'Second'}
+    
+        # Cleaning the output terminal
+        clear_output()
+    
+        # Generating map image
+        fig = self.generate_map_image()
+
+        # Generating features
+        if heatmap:
+            self.generate_heatmap(heatmap_df)
+        if deaths:
+            self.generate_death_marks(death_coords)
+        if kills:
+            self.generate_kill_marks(kill_coords)
+
+        return fig

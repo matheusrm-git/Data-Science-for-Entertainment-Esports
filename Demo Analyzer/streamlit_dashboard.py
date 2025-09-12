@@ -1,0 +1,96 @@
+import streamlit as st
+import demo_analyzer as da
+from threading import RLock
+
+_lock = RLock()
+
+path = "Furia Demos\\furia-vs-legacy-m3-mirage.dem"
+analyzer = da.Analyzer(path)
+
+@st.cache_data
+def load_player_coords():
+    return analyzer.get_player_coords()
+
+@st.cache_data
+def load_players_stats():
+    return analyzer.map_stats_analysis()
+
+players_coords = load_player_coords()
+players_stats = load_players_stats()
+
+st.title("Demo Analyzer Dashboard")
+
+#st.header("Upload Demo File")
+#uploaded_file = st.file_uploader("Choose a demo file", type=["dem"])
+
+
+tab_1, tab_2 = st.tabs(["Match Overall","Player Analysis"])
+
+with tab_1:
+    st.image("assets/header_images/furia_vs_legacy_blast_open_london_2025.png")
+    st.header("Match Overall Statistics")
+    st.dataframe(players_stats, hide_index=True)
+
+with tab_2:
+    st.header("Player Analysis")
+    filters = st.container()
+    with filters:
+
+        f_c1, f_c2 = st.columns(2)
+        with f_c1:
+            player_names = players_coords['name'].unique().tolist()
+            selected_player = st.selectbox("Select Player", player_names)
+            name = [selected_player]  
+            round_seconds = st.toggle("Filter Round Seconds", value=False)
+        with f_c2:
+            sides = ['CT', 'T', 'CT/T']
+            side = st.selectbox("Select Side", sides)   
+            if round_seconds:
+                upper_limit = st.slider(label='Seconds',min_value=0, max_value=115, value=115, step=1)
+            else:
+                upper_limit = 0
+        
+        check_boxes = filters.container()
+        b1, b2, b3, b4 = check_boxes.columns(4)
+        with b1:
+            heatmap = st.checkbox("Positions Heatmap", value=True)
+        with b2:
+            deaths = st.checkbox("Deaths", value=True)
+        with b3:
+            kills = st.checkbox("Kills", value=True)
+        with b4:
+            bomb_plt = st.checkbox("Afterplant", value=False)
+
+
+    if st.button("Analyze"):
+        with st.spinner('Analyzing Statistics...'):
+            players_stats = analyzer.map_stats_analysis(names=name, side=side)
+
+        stats = st.container()
+        with stats:
+            stats_col1, stats_col2 = st.columns(2)
+            with stats_col1:
+                st.image(f"assets/Furia_players/{selected_player}.png")
+            with stats_col2:
+                st.subheader(f"{selected_player}")
+                stats_cb1, stats_cb2,stats_cb3 = stats_col2.columns(3)
+                with stats_cb1:
+                    st.metric("Kills", int(players_stats.loc[players_stats['Player'] == selected_player]['Kills']))
+                    st.metric("Assists", int(players_stats.loc[players_stats['Player'] == selected_player]['Assists'])) 
+                with stats_cb2:
+                    st.metric("Deaths", int(players_stats.loc[players_stats['Player'] == selected_player]['Deaths']))
+                    st.metric("K/D Ratio", round(float(players_stats.loc[players_stats['Player'] == selected_player]['K/D Ratio']),2))
+                with stats_cb3:
+                    st.metric("Flash Assists", round(float(players_stats.loc[players_stats['Player'] == selected_player]['Flash Assists']),2))
+                    st.metric("% HS", str(round(float(players_stats.loc[players_stats['Player'] == selected_player]['% HS']),1)) + "%")
+                #st.dataframe(players_stats.loc[players_stats['Player'] == selected_player].drop('Player', axis=1), hide_index=True)
+            
+        map = st.container()
+        with map:
+            with st.spinner('Generating Graph...'):
+                with _lock:
+                    fig = analyzer.generate_dashboard_graph_analysis(players_coords, names=name,round_seconds=round_seconds,upper_limit=upper_limit, side=side,heatmap=heatmap, deaths=deaths,kills=kills,bomb_plt=bomb_plt)
+            st.pyplot(fig)
+    
+        
+

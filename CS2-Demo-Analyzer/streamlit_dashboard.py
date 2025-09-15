@@ -30,7 +30,7 @@ st.title("Demo Analyzer Dashboard")
 tab_1, tab_2 = st.tabs(["Match Overall","Player Analysis"])
 
 with tab_1:
-    st.image("assets/header_images/furia_vs_legacy_blast_open_london_2025.png")
+    st.image("assets\header_images\legacy_vs_furia_blast_open_london_2025.png")
     st.header("Match Overall Statistics")
     st.dataframe(players_stats, hide_index=True)
 
@@ -76,7 +76,7 @@ with tab_2:
             with stats:
                 stats_col1, stats_col2 = st.columns(2)
                 with stats_col1:
-                    st.image(f"assets/Furia_players/{selected_player}.png")
+                    st.image(f"assets\players_players\{selected_player}.png")
                 with stats_col2:
                     st.subheader(f"{selected_player}")
                     stats_cb1, stats_cb2,stats_cb3 = stats_col2.columns(3)

@@ -20,10 +20,6 @@ players_stats = load_players_stats()
 
 st.title("Demo Analyzer Dashboard")
 
-#st.header("Upload Demo File")
-#uploaded_file = st.file_uploader("Choose a demo file", type=["dem"])
-
-
 tab_1, tab_2 = st.tabs(["Match Overall","Player Analysis"])
 
 with tab_1:

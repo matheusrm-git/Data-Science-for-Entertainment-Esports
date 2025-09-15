@@ -1,0 +1,10 @@
+streamlit
+threading
+RLock
+pandas
+seaborn
+matplotlib.pyplot
+matplotlib.image
+numpy
+IPython.display
+demoparser2

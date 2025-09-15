@@ -4,7 +4,7 @@ from threading import RLock
 
 _lock = RLock()
 
-path = "Furia Demos\\furia-vs-legacy-m3-mirage.dem"
+path = "assets\\furia-vs-legacy-m3-mirage.dem"
 analyzer = da.Analyzer(path)
 
 @st.cache_data
@@ -34,7 +34,7 @@ with tab_2:
 
         f_c1, f_c2 = st.columns(2)
         with f_c1:
-            player_names = players_coords['name'].unique().tolist()
+            player_names = ['FalleN', 'KSCERATO', 'yuurih', 'molodoy', 'YEKINDAR']
             selected_player = st.selectbox("Select Player", player_names)
             name = [selected_player]  
             round_seconds = st.toggle("Filter Round Seconds", value=False)
@@ -59,34 +59,36 @@ with tab_2:
 
 
     if st.button("Analyze"):
-        with st.spinner('Analyzing Statistics...'):
-            players_stats = analyzer.map_stats_analysis(names=name, side=side)
+        if not (name[0] in player_names and side in sides):
+            st.error("Please select a valid player and side.")
+        else:
+            with st.spinner('Analyzing Statistics...'):
+                players_stats = analyzer.map_stats_analysis(names=name, side=side)
 
-        stats = st.container()
-        with stats:
-            stats_col1, stats_col2 = st.columns(2)
-            with stats_col1:
-                st.image(f"assets/Furia_players/{selected_player}.png")
-            with stats_col2:
-                st.subheader(f"{selected_player}")
-                stats_cb1, stats_cb2,stats_cb3 = stats_col2.columns(3)
-                with stats_cb1:
-                    st.metric("Kills", int(players_stats.loc[players_stats['Player'] == selected_player]['Kills']))
-                    st.metric("Assists", int(players_stats.loc[players_stats['Player'] == selected_player]['Assists'])) 
-                with stats_cb2:
-                    st.metric("Deaths", int(players_stats.loc[players_stats['Player'] == selected_player]['Deaths']))
-                    st.metric("K/D Ratio", round(float(players_stats.loc[players_stats['Player'] == selected_player]['K/D Ratio']),2))
-                with stats_cb3:
-                    st.metric("Flash Assists", round(float(players_stats.loc[players_stats['Player'] == selected_player]['Flash Assists']),2))
-                    st.metric("% HS", str(round(float(players_stats.loc[players_stats['Player'] == selected_player]['% HS']),1)) + "%")
-                #st.dataframe(players_stats.loc[players_stats['Player'] == selected_player].drop('Player', axis=1), hide_index=True)
-            
-        map = st.container()
-        with map:
-            with st.spinner('Generating Graph...'):
-                with _lock:
-                    fig = analyzer.generate_dashboard_graph_analysis(players_coords, names=name,round_seconds=round_seconds,upper_limit=upper_limit, side=side,heatmap=heatmap, deaths=deaths,kills=kills,bomb_plt=bomb_plt)
-            st.pyplot(fig)
+            stats = st.container()
+            with stats:
+                stats_col1, stats_col2 = st.columns(2)
+                with stats_col1:
+                    st.image(f"assets/Furia_players/{selected_player}.png")
+                with stats_col2:
+                    st.subheader(f"{selected_player}")
+                    stats_cb1, stats_cb2,stats_cb3 = stats_col2.columns(3)
+                    with stats_cb1:
+                        st.metric("Kills", int(players_stats.loc[players_stats['Player'] == selected_player]['Kills']))
+                        st.metric("Assists", int(players_stats.loc[players_stats['Player'] == selected_player]['Assists'])) 
+                    with stats_cb2:
+                        st.metric("Deaths", int(players_stats.loc[players_stats['Player'] == selected_player]['Deaths']))
+                        st.metric("K/D Ratio", round(float(players_stats.loc[players_stats['Player'] == selected_player]['K/D Ratio']),2))
+                    with stats_cb3:
+                        st.metric("Flash Assists", round(float(players_stats.loc[players_stats['Player'] == selected_player]['Flash Assists']),2))
+                        st.metric("% HS", str(round(float(players_stats.loc[players_stats['Player'] == selected_player]['% HS']),1)) + "%")
+                
+            map = st.container()
+            with map:
+                with st.spinner('Generating Graph...'):
+                    with _lock:
+                        fig = analyzer.generate_dashboard_graph_analysis(players_coords, names=name,round_seconds=round_seconds,upper_limit=upper_limit, side=side,heatmap=heatmap, deaths=deaths,kills=kills,bomb_plt=bomb_plt)
+                st.pyplot(fig)
     
         
 

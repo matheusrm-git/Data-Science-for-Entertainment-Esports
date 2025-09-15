@@ -106,15 +106,15 @@ MAPS_OVERVIEWS = {
 }
 
 MAPS_URL = {
-     "de_ancient":    'assets/CS2_maps_radar/de_ancient_radar_psd.png' ,
-     "de_anubis":     'assets/CS2_maps_radar/de_anubis_radar_psd.png' ,
-     "de_dust2":      'assets/CS2_maps_radar/de_dust2_radar_psd.png' ,
-     "de_inferno":    'assets/CS2_maps_radar/de_inferno_radar_psd.png' ,
-     "de_mirage":     'assets/CS2_maps_radar/de_mirage_radar_psd.png' ,
-     "de_nuke_lower": 'assets/CS2_maps_radar/de_nuke_lower_radar_psd.png' ,
-     "de_nuke":       'assets/CS2_maps_radar/de_nuke_radar_psd.png' ,
-     "de_overpass":   'assets/CS2_maps_radar/de_overpass_radar_psd.png',
-     "de_train":      'assets/CS2_maps_radar/de_train_radar_psd.png'
+     "de_ancient":    'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_ancient_radar_psd.png' ,
+     "de_anubis":     'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_anubis_radar_psd.png' ,
+     "de_dust2":      'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_dust2_radar_psd.png' ,
+     "de_inferno":    'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_inferno_radar_psd.png' ,
+     "de_mirage":     'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_mirage_radar_psd.png' ,
+     "de_nuke_lower": 'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_nuke_lower_radar_psd.png' ,
+     "de_nuke":       'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_nuke_radar_psd.png' ,
+     "de_overpass":   'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_overpass_radar_psd.png',
+     "de_train":      'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_train_radar_psd.png'
 }
 
 SPAWN_POS_THRESHOLD = 15

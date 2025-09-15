@@ -33,7 +33,7 @@ st.title("Demo Analyzer Dashboard")
 tab_1, tab_2 = st.tabs(["Match Overall","Player Analysis"])
 
 with tab_1:
-    st.image(current_dir / "/assets/header_images/legacy_vs_furia_blast_open_london_2025.png")
+    #st.image(current_dir / "/assets/header_images/legacy_vs_furia_blast_open_london_2025.png")
     st.header("Match Overall Statistics")
     st.dataframe(players_stats, hide_index=True)
 

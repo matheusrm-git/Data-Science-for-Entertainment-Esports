@@ -1,11 +1,16 @@
 import streamlit as st
 import demo_analyzer as da
 from threading import RLock
+import gdown
 
 _lock = RLock()
 
-path = "assets\\furia-vs-legacy-m3-mirage.dem"
-analyzer = da.Analyzer(path)
+demo_url = 'https://drive.google.com/file/d/1GrL35_crPml7vnM6xkDYpcUA6G-sCOnK/view?usp=sharing'
+path = "furia-vs-legacy-m3-mirage.dem"
+
+@st.cache_data
+def load_demo():
+    gdown.download(demo_url, path, quiet=False, fuzzy=True)
 
 @st.cache_data
 def load_player_coords():
@@ -15,6 +20,8 @@ def load_player_coords():
 def load_players_stats():
     return analyzer.map_stats_analysis()
 
+load_demo()
+analyzer = da.Analyzer(path)
 players_coords = load_player_coords()
 players_stats = load_players_stats()
 

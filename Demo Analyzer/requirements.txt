@@ -1,10 +1,8 @@
 streamlit
 threading
-RLock
 pandas
 seaborn
-matplotlib.pyplot
-matplotlib.image
+matplotlib
 numpy
-IPython.display
+IPython
 demoparser2

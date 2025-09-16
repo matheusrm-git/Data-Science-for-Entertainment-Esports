@@ -2,11 +2,10 @@ import streamlit as st
 import demo_analyzer as da
 from threading import RLock
 import gdown
-from pathlib import Path
+
+st.set_page_config(layout="wide")
 
 _lock = RLock()
-
-current_dir = Path(__file__).parent
 
 demo_url = 'https://drive.google.com/file/d/1GrL35_crPml7vnM6xkDYpcUA6G-sCOnK/view?usp=sharing'
 path = "furia-vs-legacy-m3-mirage.dem"

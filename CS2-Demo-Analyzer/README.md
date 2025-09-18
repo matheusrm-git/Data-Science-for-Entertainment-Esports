@@ -1,7 +1,7 @@
 #  Demo Analyzer – Extracting insights from CS2 demos
 
 ## 📌 Overview
-This project analyzes CS2 match demos and extracts information based on metadata collected from .dem files. I've created a module called demo_analyzer.py to transform metadata into heatmaps, kill and death charts, and player statistics. Additionally, using the Streamlit library, it's possible to create interactive dashboards. Teams could use those to study and create team-oriented strategies. 
+This project analyzes **Counter-Strike 2** professional match demos and extracts information based on metadata collected from .dem files. I've created a module called demo_analyzer.py to transform metadata into heatmaps, kill and death charts, and player statistics. Additionally, using the Streamlit library, it's possible to create interactive dashboards. Teams could use those to study and create team-oriented strategies. 
 
 ---
 

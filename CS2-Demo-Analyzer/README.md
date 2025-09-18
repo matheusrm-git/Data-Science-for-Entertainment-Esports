@@ -48,8 +48,8 @@ For illustration purposes I've built a Streamlit aplication to simulate a intera
 
 - [Jupyter Notebook](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/Analyzer%20Demonstration%20(Furia%20x%20Legacy).ipynb)
 
-![Jupyter 1](\assets\demonstration_prints\jupyter_demo_1.png)
-![Jupyter 2](\assets\demonstration_prints\jupyter_demo_2.png)
+![Jupyter 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/assets/demonstration_prints/jupyter_demo_1.png)
+![Jupyter 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/assets/demonstration_prints/jupyter_demo_2.png)
 
 
 ---

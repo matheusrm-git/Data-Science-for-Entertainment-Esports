@@ -41,7 +41,7 @@ For illustration purposes I've built a Streamlit aplication to simulate a intera
 
 - [Live Demo on Streamlit](https://cs2-demo-analyzer-dashboard.streamlit.app/)
 
-![Streamlit App 1](\assets\demonstration_prints\streamlit_app_demo_1.png)
+![Streamlit App 1](/assets/demonstration_prints/streamlit_app_demo_1.png)
 ![Streamlit App 2](\assets\demonstration_prints\streamlit_app_demo_2.png)
 ![Streamlit App 3](\assets\demonstration_prints\streamlit_app_demo_3.png)  
 

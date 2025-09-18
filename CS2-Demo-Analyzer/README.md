@@ -6,8 +6,8 @@ This project analyze cs2 match demos and extract information based on metadata c
 ---
 
 ## 🎯 Objectives
-- [x] Build a module to extract heatmaps from demo files.  
-- [x] Build a module to extract player statistics from demo files.  
+- [x] Extract heatmaps from demo files.  
+- [x] Extract player statistics from demo files.  
 - [x] Create an interactive dashboard for insights.  
 
 ---
@@ -34,23 +34,30 @@ This project analyze cs2 match demos and extract information based on metadata c
 ---
 
 ## 🚀 Results
-On the way...  
 
----
+Using Demoparser2 library to transform .dem files into metadata dataframes, I was able to obtain great amount of graphs and statistcs such as kills, deaths, assists, flashbang assists, KDA, etc. For instance, based on my functions it's possible to analyze players individually, filtering by round, roundtime and even afterplant situations.
 
-## 🖼️ Demo
-On the way...
+For illustration purposes I've built a Streamlit aplication to simulate a interactive dashboard, and a Jupyter Notebook. Feel free to click at the links or just stay with the printscreens.
 
-There are a Streamlit and Jupyter Notebook demonstrations of this module.  
-- [Live Demo on Streamlit](link)  
-- [Jupyter Notebook](link)  
+- [Live Demo on Streamlit](https://cs2-demo-analyzer-dashboard.streamlit.app/)
+
+![Streamlit App 1](\assets\demonstration_prints\streamlit_app_demo_1.png)
+![Streamlit App 2](\assets\demonstration_prints\streamlit_app_demo_2.png)
+![Streamlit App 3](\assets\demonstration_prints\streamlit_app_demo_3.png)  
+
+
+- [Jupyter Notebook](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/Analyzer%20Demonstration%20(Furia%20x%20Legacy).ipynb)
+
+![Jupyter 1](\assets\demonstration_prints\jupyter_demo_1.png)
+![Jupyter 2](\assets\demonstration_prints\jupyter_demo_2.png)
+
 
 ---
 
 ## 📚 Learnings
 - Improved my Python, Pandas, and Numpy writing a good performing module that execute operations in Dataframes with millions of samples.
 - Improved my Matplotlib and Seaborn skills building heatmaps using PNG images.  
-- Learned how to use Streamlit library to create interactive dashboards.  
+- Learned how to use Streamlit library to create web aplications.  
 
 ---
 

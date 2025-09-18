@@ -3,16 +3,10 @@ import demo_analyzer as da
 from threading import RLock
 import gdown
 
-st.set_page_config(layout="wide")
-
-_lock = RLock()
-
-demo_url = 'https://drive.google.com/file/d/1GrL35_crPml7vnM6xkDYpcUA6G-sCOnK/view?usp=sharing'
-path = "furia-vs-legacy-m3-mirage.dem"
-
+# Caching functions
 @st.cache_data
-def load_demo():
-    gdown.download(demo_url, path, quiet=False, fuzzy=True)
+def load_demo(demo_url, desired_path):
+    gdown.download(demo_url, desired_path, quiet=False, fuzzy=True)
 
 @st.cache_data
 def load_player_coords():
@@ -22,25 +16,40 @@ def load_player_coords():
 def load_players_stats():
     return analyzer.map_stats_analysis()
 
-load_demo()
-analyzer = da.Analyzer(path)
+# Initializing a lock for thread safety
+_lock = RLock()
+
+# Downloading demo file
+demo_url = 'https://drive.google.com/file/d/1GrL35_crPml7vnM6xkDYpcUA6G-sCOnK/view?usp=sharing'
+demo_path = "furia-vs-legacy-m3-mirage.dem"
+load_demo(demo_url, demo_path)
+
+# Initializing analyzer and loading data
+analyzer = da.Analyzer(demo_path)
 players_coords = load_player_coords()
 players_stats = load_players_stats()
 
-st.title("Demo Analyzer Dashboard")
+# Streamlit App
+st.set_page_config(page_title="Demo Analyzer Dashboard")
 
+st.title("CS2 Demo Analyzer Dashboard")
+
+# Defining tabs
 tab_1, tab_2 = st.tabs(["Match Overall","Player Analysis"])
 
+# Tab 1: Match Overall Statistics
 with tab_1:
     st.image("CS2-Demo-Analyzer/assets/header_images/legacy_vs_furia_blast_open_london_2025.png")
     st.header("Match Overall Statistics")
     st.dataframe(players_stats, hide_index=True)
 
+# Tab 2: Player Analysis
 with tab_2:
     st.header("Player Analysis")
+    
+    # Filters for player analysis (player name, side, round seconds, features to display)
     filters = st.container()
     with filters:
-
         f_c1, f_c2 = st.columns(2)
         with f_c1:
             player_names = ['FalleN', 'KSCERATO', 'yuurih', 'molodoy', 'YEKINDAR']
@@ -64,18 +73,21 @@ with tab_2:
         with b3:
             kills = st.checkbox("Kills", value=True)
         with b4:
-            bomb_plt = st.checkbox("Afterplant", value=False)
+            bomb_plt = st.checkbox("After plant", value=False)
 
-
+    # Analyze button
     if st.button("Analyze"):
+        # Validating inputs
         if not (name[0] in player_names and side in sides):
             st.error("Please select a valid player and side.")
         else:
             with st.spinner('Analyzing Statistics...'):
                 players_stats = analyzer.map_stats_analysis(names=name, side=side)
 
+            # Displaying player stats (player image, kills, deaths, assists, K/D ratio, flash assists, HS%)
             stats = st.container()
             with stats:
+                # Define two columns for player image and stats (stats_col1 for player image, stats_col2 for player stats)
                 stats_col1, stats_col2 = st.columns(2)
                 with stats_col1:
                     player_img = f"CS2-Demo-Analyzer/assets/players_images/{selected_player}.png"
@@ -92,7 +104,8 @@ with tab_2:
                     with stats_cb3:
                         st.metric("Flash Assists", round(float(players_stats.loc[players_stats['Player'] == selected_player]['Flash Assists']),2))
                         st.metric("% HS", str(round(float(players_stats.loc[players_stats['Player'] == selected_player]['% HS']),1)) + "%")
-                
+            
+            # Generating and displaying the graph    
             map = st.container()
             with map:
                 with st.spinner('Generating Graph...'):

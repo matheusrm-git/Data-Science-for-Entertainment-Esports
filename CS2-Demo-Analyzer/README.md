@@ -19,9 +19,9 @@ This project analyze cs2 match demos and extract information based on metadata c
 ---
 
 ## ⚙️ Tech Stack
-- **Language:** Python 3.11  
-- **Libraries:** Pandas, NumPy, Matplotlib, Seaborn, Demoparser2, IPython, Streamlit.  
-- **Tools:** Jupyter Notebook.  
+- **Language:** Python 3.11.9  
+- **Libraries:** Pandas, NumPy, Matplotlib, Seaborn, demoparser2, IPython, Streamlit.  
+- **Tools:** Jupyter Notebook, Streamlit.  
 
 ---
 

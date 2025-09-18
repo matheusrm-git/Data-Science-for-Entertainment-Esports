@@ -6,6 +6,13 @@ import numpy as np
 from IPython.display import clear_output
 from demoparser2 import DemoParser
 
+'''
+This module contains all the constants,functions, and classes used in the demo analyzer.
+
+@author: Matheus Resende Miranda
+
+'''
+# Constants
 SPAWN_COORDINATES = {
     'de_ancient': [(-256.0, 1728.0),
      (-456.0, -2288.0),
@@ -105,7 +112,7 @@ MAPS_OVERVIEWS = {
      "de_train":    (-2477, 2392, 4.7)
 }
 
-MAPS_URL = {
+MAPS_STREAMLIT_URL = {
      "de_ancient":    'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_ancient_radar_psd.png' ,
      "de_anubis":     'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_anubis_radar_psd.png' ,
      "de_dust2":      'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_dust2_radar_psd.png' ,
@@ -117,62 +124,32 @@ MAPS_URL = {
      "de_train":      'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_train_radar_psd.png'
 }
 
+MAPS_URL = {
+     "de_ancient":    'assets/CS2_maps_radar/de_ancient_radar_psd.png' ,
+     "de_anubis":     'assets/CS2_maps_radar/de_anubis_radar_psd.png' ,
+     "de_dust2":      'assets/CS2_maps_radar/de_dust2_radar_psd.png' ,
+     "de_inferno":    'assets/CS2_maps_radar/de_inferno_radar_psd.png' ,
+     "de_mirage":     'assets/CS2_maps_radar/de_mirage_radar_psd.png' ,
+     "de_nuke_lower": 'assets/CS2_maps_radar/de_nuke_lower_radar_psd.png' ,
+     "de_nuke":       'assets/CS2_maps_radar/de_nuke_radar_psd.png' ,
+     "de_overpass":   'assets/CS2_maps_radar/de_overpass_radar_psd.png',
+     "de_train":      'assets/CS2_maps_radar/de_train_radar_psd.png'
+}
+
 SPAWN_POS_THRESHOLD = 15
 IMAGE_SIZE = 1024
 NUKE_Z_THRESHOLD = -560
 
-def get_demo_params(parser):
-        params = []
-        """
-        Get important demo parameters.
-        - self.parser: demo self.parser object 
-        -[0] self.TICK_RATE: tick rate in ticks per second (constant)
-        -[1] self.MATCH_START_TICK: match starting tick (after the first freeze time)
-        -[2] self.MATCH_RT_HALF_END_TICK: regular time half end tick
-        -[3] self.MATCH_END_TICK: match end tick
-        -[4] self.N_ROUNDS: number of rounds
-        -[5] self.MAP_NAME: map name
-
-        return:
-        - params: list of parameters
-        """
-
-        # Setting self.TICK_RATE
-        params.append(64)
-
-        # Getting  self.MATCH_START_TICK
-        try:
-            params.append(parser.parse_event("round_announce_match_start").dropna()['tick'][parser.parse_event("round_announce_match_start").shape[0]-1])
-        except:
-            print("Params might be incorrect")
-            params.append(parser.parse_event("round_start").dropna()['tick'][0])
-
-        # Getting self.MATCH_RT_HALF_END_TICK
-        try:
-            params.append(parser.parse_event('announce_phase_end')['tick'][0])
-        except:
-            print("Params might be incorrect")
-            params.append(parser.parse_event("round_end").dropna()["tick"][11])
-
-        # Getting self.MATCH_END_TICK
-        params.append(parser.parse_event("round_end").dropna()['tick'].iloc[-1])
-
-        # Getting self.N_ROUNDS
-        player = parser.parse_player_info()['steamid'][0]
-        params.append(parser.parse_ticks(wanted_props=['total_rounds_played'], players = [player])['total_rounds_played'].unique()[-1])
-
-        # Getting self.MAP_NAME
-        params.append(parser.parse_header()['map_name'])
-
-        return params
-
-def normalize_coords(x_game, y_game, pos_x, pos_y, scale, img_size):
+# Mathematical and Class Independent Functions
+def normalize_coords(x_game, y_game, pos_x, pos_y, scale):
         """
         Convert in-game coordinates to minimap pixels.
         - x_game, y_game: in-game coordinates
         - pos_x, pos_y: minimap overview coordinates
         - scale: minimap overview scale
-        - img_size: image resolution (ex.: 1024)
+      
+        return:
+        - x_img, y_img: minimap pixel coordinates
         """
         # Trasforming in-game coords to pixels
         x_img = (x_game - pos_x) / scale
@@ -191,11 +168,13 @@ def get_stats(match_event_df, names=[], side='CT/T'):
     """
     stats_df = pd.DataFrame()
 
+    #Organizing match_event_df and creating aux variables
     match_event_df = match_event_df.reset_index().drop('index', axis=1)
     suicides = match_event_df.loc[match_event_df['attacker_name'] == match_event_df['user_name']]
     match_event_df_k = match_event_df
     match_event_df_d = match_event_df
 
+    # Selecting side
     if side in ["CT", "T"]:
         if side == 'CT':
             match_event_df_d = match_event_df.loc[match_event_df['side'] == 'CT']
@@ -209,6 +188,7 @@ def get_stats(match_event_df, names=[], side='CT/T'):
     if not names:
         names = set(match_event_df['attacker_name'].unique().tolist() + match_event_df['user_name'].unique().tolist())
 
+    # Calculating stats
     for name in names:
         # Getting kills
         kills = match_event_df_k.loc[match_event_df['attacker_name'] == name]
@@ -256,13 +236,63 @@ def get_stats(match_event_df, names=[], side='CT/T'):
 
         
 
-    return stats_df #.reset_index().drop('index', axis=1)
+    return stats_df
 
 class Analyzer:
+    """
+    Class for analyzing CS:GO/CS2 demos.
+    - demo_url: path to the demo file
+    """
 
-    def __init__(self, demo_url):
-        self.parser = DemoParser(demo_url)
-        self.TICK_RATE, self.MATCH_START_TICK, self.MATCH_RT_HALF_END_TICK, self.MATCH_END_TICK, self.N_ROUNDS, self.MAP_NAME = get_demo_params(self.parser)
+    def __init__(self, demo_path):
+        # Defining demo parser object and get demo parameters
+        self.parser = DemoParser(demo_path)
+        self.TICK_RATE, self.MATCH_START_TICK, self.MATCH_RT_HALF_END_TICK, self.MATCH_END_TICK, self.N_ROUNDS, self.MAP_NAME = self.get_demo_params()
+
+    def get_demo_params(self):
+        params = []
+        """
+        Get important demo parameters.
+        - self.parser: demo self.parser object 
+        -[0] self.TICK_RATE: tick rate in ticks per second (constant)
+        -[1] self.MATCH_START_TICK: match starting tick (after the first freeze time)
+        -[2] self.MATCH_RT_HALF_END_TICK: regular time half end tick
+        -[3] self.MATCH_END_TICK: match end tick
+        -[4] self.N_ROUNDS: number of rounds
+        -[5] self.MAP_NAME: map name
+
+        return:
+        - params: list of parameters
+        """
+
+        # Setting self.TICK_RATE
+        params.append(64)
+
+        # Getting  self.MATCH_START_TICK
+        try:
+            params.append(self.parser.parse_event("round_announce_match_start").dropna()['tick'][self.parser.parse_event("round_announce_match_start").shape[0]-1])
+        except:
+            print("Params might be incorrect")
+            params.append(self.parser.parse_event("round_start").dropna()['tick'][0])
+
+        # Getting self.MATCH_RT_HALF_END_TICK
+        try:
+            params.append(self.parser.parse_event('announce_phase_end')['tick'][0])
+        except:
+            print("Params might be incorrect")
+            params.append(self.parser.parse_event("round_end").dropna()["tick"][11])
+
+        # Getting self.MATCH_END_TICK
+        params.append(self.parser.parse_event("round_end").dropna()['tick'].iloc[-1])
+
+        # Getting self.N_ROUNDS
+        player = self.parser.parse_player_info()['steamid'][0]
+        params.append(self.parser.parse_ticks(wanted_props=['total_rounds_played'], players = [player])['total_rounds_played'].unique()[-1])
+
+        # Getting self.MAP_NAME
+        params.append(self.parser.parse_header()['map_name'])
+
+        return params
 
     def get_match_event_df(self, player_coords):
         """
@@ -273,9 +303,10 @@ class Analyzer:
         return:
         - match_event_df: dataframe with match important events
         """
+        # Defining match_event_df as every event of player_death
         match_event_df = self.parser.parse_event('player_death')
 
-        #match_event_df = match_event_df.join(player_coords[['tick', 'round']].drop_duplicates().set_index('tick'), on='tick')
+        # Merging side and round info from player_coords to match_event_df
         match_event_df = match_event_df.merge(player_coords[['tick', 'round','name','side']].drop_duplicates(), left_on=['tick','user_name'], right_on=['tick','name'] , how='left')
         match_event_df = match_event_df.dropna(subset=['round'])
         match_event_df = match_event_df.loc[match_event_df['tick'] > self.MATCH_START_TICK]
@@ -283,53 +314,19 @@ class Analyzer:
 
         return match_event_df[['attacker_name','user_name','headshot','assister_name','assistedflash', 'revenge','tick', 'round','side','side_k']]
 
-    def get_sides(self, player_id=[], team_num=3):
-
-        start_tick = self.MATCH_RT_HALF_END_TICK+10*self.TICK_RATE
-        side_1_half = ''
-        side_2_half = ''
-        stop_tick = 20
-        for i in range(stop_tick):
-            aux = self.parser.parse_ticks(wanted_props=["active_weapon_name","team_num"], ticks=[(start_tick)+self.TICK_RATE*i], players = player_id)
-            if player_id == []:
-                aux = aux.loc[aux['team_num'] == team_num]
-            if 'USP-S' in list(aux['active_weapon_name'].unique()):
-                side_1_half = 'T'
-                side_2_half = 'CT'
-                break
-            elif 'Glock-18' in list(aux['active_weapon_name'].unique()):
-                side_1_half = 'CT'
-                side_2_half = 'T'
-                break
-        return (side_1_half, side_2_half)
-
-    def get_spawn_positions(self):
-        """
-        Get spawn positions.
-        - self.parser: demo self.parser object
-
-        return:
-        - spawn_positions: list of spawn positions
-        """
-
-        # Getting map spawn positions
-        print("Getting Spawns Positions")
-        spawn_positions = self.parser.parse_ticks(wanted_props=["X","Y"], ticks=[self.self.MATCH_START_TICK])[["X","Y"]]
-        print("Done")
-        return [(a, b) for a,b in zip(spawn_positions['X'],spawn_positions['Y'])]
-
     def get_player_coords(self, player_id=[], other_props=[],verbose=0):
         """
-        Get player coordinates.
+        Get player coordinates every server tick.
         - self.parser: demo self.parser object
         - player_id: player id
-        - spawn_positions: list of spawn positions
-        - half: half of the match (1 or 2) (default = 1)
+        - other_props: list of other wanted properties (more info at demoparser2 documentation)
+        - verbose: verbosity level (0: none, 1: basic)
 
         return:
-        - coords_df_without_spawns: dataframe with player coordinates without spawn positions
+        - coords_df: dataframe with player coordinates
         """
 
+        # Handling exceptions
         if self.MAP_NAME in MAP_NAMES:
             map_overview = MAPS_OVERVIEWS[self.MAP_NAME]
         else:
@@ -337,12 +334,13 @@ class Analyzer:
 
         if other_props:
                 if type(other_props) != list:
-                    raise TypeError("other_props mustt be a list of strings")
+                    raise TypeError("other_props must be a list of strings")
         else:
             for props in other_props:
                 if type(props) != str:
-                    raise ValueError("other_props mustt be a list of strings")
+                    raise ValueError("other_props must be a list of strings")
 
+        # Getting wanted properties and coordinates
         wanted_props = ["X","Y","Z","is_alive",'is_bomb_planted','total_rounds_played','team_num'] + other_props
         print("Getting coordinates")
         if player_id == []:
@@ -350,35 +348,27 @@ class Analyzer:
         else:
             coords_df = self.parser.parse_ticks(wanted_props=wanted_props, players=player_id)
 
-        #print("Getting sides...")
-        #sides = self.get_sides(player_id, coords_df['team_num'].unique()[0])
-
+        # Processing coords_df and adding useful features
         print("Dropping NA's values...")
         coords_df.dropna(inplace=True)
-
         print("Tagging by Half...")
         coords_df['half'] = coords_df['tick'].apply(lambda x: 1 if x <= self.MATCH_RT_HALF_END_TICK else 2)
         print("Tagging by Side...")
         coords_df['side'] = coords_df['team_num'].apply(lambda x: 'T' if x== 2.0 else 'CT')
-        # coords_df.loc[coords_df['team_num'] == coords_df['team_num'].unique()[0], 'side'] = coords_df['half'].apply(lambda x: sides[1] if x==2 else sides[0] )
-        # coords_df.loc[coords_df['team_num'] == coords_df['team_num'].unique()[1], 'side'] = coords_df['half'].apply(lambda x: sides[0] if x==2 else sides[1] )
         print("Tagging by round...")
         coords_df['round'] = coords_df['total_rounds_played']+1
         print("Tagging by Floor...")
         coords_df['floor'] = coords_df['Z'].apply(lambda x: 0 if x < NUKE_Z_THRESHOLD else 1)
-
-
         print("Filtering warmup ticks...")
         coords_df = coords_df.loc[coords_df['tick'] >= self.MATCH_START_TICK]
         print("Filtering after game ticks...")
         coords_df = coords_df.loc[coords_df['tick'] <= self.MATCH_END_TICK]
-
         print("Normalizing...")
-        # Normalizing coords
-        coords_df = pd.concat([coords_df.drop(['X','Y','Z','steamid','total_rounds_played'], axis=1),normalize_coords(coords_df["X"], coords_df["Y"], map_overview[0], map_overview[1], map_overview[2], IMAGE_SIZE)], axis=1)
+        coords_df = pd.concat([coords_df.drop(['X','Y','Z','steamid','total_rounds_played'], axis=1),normalize_coords(coords_df["X"], coords_df["Y"], map_overview[0], map_overview[1], map_overview[2])], axis=1)
         
         print("Done!")
 
+        # Handling verbosity
         if not verbose:
             clear_output()
 
@@ -386,18 +376,18 @@ class Analyzer:
 
     def get_round_ticks(self, upper_limit):
         """
-        Get round ticks.
+        Filter players coords based on round time limit (end of freeze time - round end (or upper limit)).
         - self.parser: demo self.parser object
-        - lower_limit: start round timer count
-        - upper_limit: end round timer count
+        - upper_limit: end round timer count (in seconds)
 
         return:
-        - round_ticks: list of tuples of rounds ticks
+        - round_ticks: list of tuples of rounds ticks (round start tick, round end/limit tick)
         """
-
+        # Getting regular round start and end ticks
         round_start_ticks = list(self.parser.parse_event("round_freeze_end").dropna()['tick'])
         round_end_ticks = list(self.parser.parse_event("round_end").dropna()['tick'])
 
+        # Handlig length mismatch, generated by possible parser errors/demo issues/warmup rounds
         if len(round_start_ticks) < len(round_end_ticks):
             dif = len(round_end_ticks)-len(round_start_ticks)
             round_end_ticks = round_end_ticks[dif::]
@@ -405,11 +395,10 @@ class Analyzer:
             dif = len(round_start_ticks)-len(round_end_ticks)
             round_start_ticks = round_start_ticks[dif::]
 
+        # Defining lower and upper limit ticks for each round
         lower_limit_ticks  = round_start_ticks
-
         if upper_limit > 115:
             upper_limit_ticks = round_end_ticks
-
         upper_limit_ticks = np.add(round_start_ticks, upper_limit*self.TICK_RATE)
 
         # Returning list of tuples (start, stop) ticks of each round
@@ -417,20 +406,24 @@ class Analyzer:
 
         return round_ticks
 
-    def set_heatmap_data(self, player_coords, names=[], round_seconds=False, upper_limit=0, half=0, side='CT/T', bomb_plt=False, round=0,verbose=0):
+    def get_heatmap_data(self, player_coords, names=[], round_seconds=False, upper_limit=0, half=0, side='CT/T', bomb_plt=False, round=0,verbose=0):
         """
-        Make heatmap coordinates.
+        Make heatmap coordinates to generate a graph.
         - self.parser: demo self.parser object
         - player_coords: dataframe with player coordinates
-        - map: map name
-        - lower_limit: start round timer count
-        - upper_limit: end round timer count
-        - half: half of the match (1 or 2) (default = 1)
+        - names: list of player names (default = all players)
+        - upper_limit: end round timer count (optional)
+        - half: half of the match (1 or 2) (default = all halves)
+        - side: side to analyze (CT, T or CT/T) (default = CT/T)
+        - bomb_plt: filter only after bomb plant (default = False)
+        - round: round number (default = all rounds)
+        - verbose: verbosity level (0: none, 1: basic)
 
         return:
-        - heatmap_df: dataframe with heatmap coordinates
+        - heatmap_df: dataframe with heatmap coordinates every wanted tick
         """
 
+        # Handling exceptions
         if round_seconds:
             if upper_limit < 0:
                 raise ValueError("Round time limiters must be in [0, 115] seconds")
@@ -450,14 +443,15 @@ class Analyzer:
         if not (round >= 0 and round < self.N_ROUNDS):
             raise ValueError(f"Round must be in [0, {self.N_ROUNDS}]")
 
+        # Filtering player_coords based on the parameters
         print("Filtering Alive ticks...")
         player_coords = player_coords.loc[player_coords['is_alive'] == True]
-
+        
         print("Getting round_ticks...")
         round_ticks = self.get_round_ticks(upper_limit)
+        
         print("Filtering round period...")
         heatmap_df = pd.DataFrame()
-        # Filtering coordinates only for the round period chosen
         for round_tick in round_ticks:
             heatmap_df = pd.concat([heatmap_df, player_coords.loc[(player_coords['tick'] >= round_tick[0]) & (player_coords['tick'] <= round_tick[1])]], axis=0)
         heatmap_df.columns = player_coords.columns 
@@ -495,29 +489,37 @@ class Analyzer:
 
         print("Done!")
 
+        # Handling verbosity
         if not verbose:
             clear_output()
+
         return heatmap_df
 
     def get_death_coords(self, players_coords, names=[], half=0, side='CT/T',bomb_plt=False, round=0, verbose=0):
         """
         Get player deaths normalized coordinates.
         - player_id: player id
-        - map: map name
-        - half: half of the match (1 or 2) (default = 1)
+        - names: list of player names
+        - half: half of the match (1 or 2) (default = all halves)
+        - side: side to analyze (CT, T or CT/T) (default = CT/T)
+        - bomb_plt: filter only after bomb plant (default = False)
+        - round: round number (default = all rounds)
+        - verbose: verbosity level (0: none, 1: basic)
 
         return:
         - deaths: dataframe with player deaths normalized coordinates
         """
-        
+        # Handling exceptions
         if self.MAP_NAME in MAP_NAMES:
             map_overview = MAPS_OVERVIEWS[self.MAP_NAME]
         else:
             raise ValueError("Map should be in self.MAP_NAMES")
 
+        # Getting deaths event dataframe
         print("Getting deaths coordinates")
         deaths = self.parser.parse_event("player_death", player= ['X', 'Y', 'Z'])
         
+        # Filtering deaths and players_coords based on parameters
         death_aux = pd.DataFrame()
         players_coords_aux = pd.DataFrame()
 
@@ -568,9 +570,10 @@ class Analyzer:
                 print("There's no 'is_bomb_planted' field")
 
         print("Normalizing deaths")
-        deaths = pd.concat([deaths['name'],deaths['half'],deaths['floor'],normalize_coords(deaths["X"], deaths["Y"], map_overview[0], map_overview[1], map_overview[2], IMAGE_SIZE)], axis=1) 
+        deaths = pd.concat([deaths['name'],deaths['half'],deaths['floor'],normalize_coords(deaths["X"], deaths["Y"], map_overview[0], map_overview[1], map_overview[2])], axis=1) 
         print("Done!")
 
+        # Handling verbosity
         if not verbose:
             clear_output()
 
@@ -580,21 +583,27 @@ class Analyzer:
         """
         Get player kills normalized coordinates.
         - player_id: player id
-        - map: map name
-        - half: half of the match (1 or 2) (default = 1)
-
+        - names: list of player names
+        - half: half of the match (1 or 2) (default = all halves)
+        - side: side to analyze (CT, T or CT/T) (default = CT/T)
+        - bomb_plt: filter only after bomb plant (default = False)
+        - round: round number (default = all rounds)
+        - verbose: verbosity level (0: none, 1: basic)
+        
         return:
         - kills: dataframe with player kills normalized coordinates
         """
-        
+        # Handling exceptions
         if self.MAP_NAME in MAP_NAMES:
             map_overview = MAPS_OVERVIEWS[self.MAP_NAME]
         else:
             raise ValueError("Map should be in self.MAP_NAMES")
 
+        # Getting kills event dataframe
         print("Getting kills coordinates")
         kills = self.parser.parse_event("player_death", player= ['X', 'Y', 'Z'])
         
+        # Filtering kills and players_coords based on parameters
         kills_aux = pd.DataFrame()
         players_coords_aux = pd.DataFrame()
         for name in names:
@@ -644,20 +653,36 @@ class Analyzer:
                 print("There's no 'is_bomb_planted' field")
 
         print("Normalizing kills")
-        kills = pd.concat([kills['name'],kills['half'],kills['floor'],normalize_coords(kills["X"], kills["Y"], map_overview[0], map_overview[1], map_overview[2], IMAGE_SIZE)], axis=1) 
+        kills = pd.concat([kills['name'],kills['half'],kills['floor'],normalize_coords(kills["X"], kills["Y"], map_overview[0], map_overview[1], map_overview[2])], axis=1) 
         print("Done!")
 
+        # Handling verbosity
         if not verbose:
             clear_output()
 
         return kills
 
-    def generate_map_image(self, title=''):
-        
+    def generate_map_image(self, title='', streamlit_app=False):
+        '''
+        Generate desired radar map image.
+        - title: title of the graph (default = '')
+        - streamlit_app: if True, load map images from Streamlit assets (default = False)
+
+        return:
+        - fig: figure object with the map image
+        '''
+
+        # Handling aplication boolean
+        if streamlit_app:
+            maps = MAPS_STREAMLIT_URL
+        else:
+            maps = MAPS_URL
+
+        # Loading regular map image or nuke map images
         print('Generating map image...')
         if self.MAP_NAME == 'de_nuke':
-            map_image = mpimg.imread(MAPS_URL['de_nuke'])
-            map_image_lower = mpimg.imread(MAPS_URL['de_nuke_lower'])
+            map_image = mpimg.imread(maps['de_nuke'])
+            map_image_lower = mpimg.imread(maps['de_nuke_lower'])
             fig = plt.figure(figsize=(32,16))
             if title != '':
                 plt.title(title)
@@ -669,26 +694,27 @@ class Analyzer:
             plt.imshow(map_image_lower, extent=[0, IMAGE_SIZE, IMAGE_SIZE,0])
             plt.axis('off')
         else:
-            map_image = mpimg.imread(MAPS_URL[self.MAP_NAME])
+            map_image = mpimg.imread(maps[self.MAP_NAME])
 
             fig = plt.figure(figsize=(16,16))
             if title != '':
                 plt.title(title)
             plt.imshow(map_image, extent=[0, IMAGE_SIZE, IMAGE_SIZE,0])
             plt.axis('off')
+        
         return fig
 
     def generate_heatmap(self, heatmap_df):
         """
         Generate heat map.
-        - map_image: map image
         - heatmap_df: dataframe with heatmap coordinates
         """
-        
+        # Adjusting palette colors
+        print('Adjusting color palette...')
         cmap = sns.color_palette("YlOrBr", as_cmap=True)
 
+        # Calculating and plotting heatmap for regular maps or nuke maps
         print('Generating heatmap...')
-
         if self.MAP_NAME == 'de_nuke':
             heatmap_df_higher = heatmap_df.loc[heatmap_df['floor'] == 1]
             heatmap_df_lower = heatmap_df.loc[heatmap_df['floor'] == 0]
@@ -703,20 +729,16 @@ class Analyzer:
             plt.axis('off')
         
         else:
-            # Generating heatmap
             sns.kdeplot(x=heatmap_df["X"], y=heatmap_df["Y"], fill=True, alpha=0.2,thresh=0.05, levels=100, cmap=cmap)
             plt.axis('off')
 
     def generate_death_marks(self, death_marks=()):
         """
-        Generate heat map.
-        - map_image: map image
-        - heatmap_coords: dataframe with heatmap coordinates
+        Generate death marks map.
+        - death_marks: dataframe with death coordinates
         """
-        cmap = sns.color_palette("YlOrBr", as_cmap=True)
-
+        # Calculating and plotting death marks for regular maps or nuke maps
         print('Generating death marks...')
-
         if self.MAP_NAME == 'de_nuke':
             deaths_coords_higher = death_marks.loc[death_marks['floor'] == 1]
             deaths_coords_lower = death_marks.loc[death_marks['floor'] == 0]
@@ -736,14 +758,11 @@ class Analyzer:
         
     def generate_kill_marks(self, kill_marks=()):
         """
-        Generate heat map.
-        - map_image: map image
-        - heatmap_coords: dataframe with heatmap coordinates
+        Generate kill marks map.
+        - kill_marks: dataframe with kill coordinates
         """
-        cmap = sns.color_palette("YlOrBr", as_cmap=True)
-
+        # Calculating and plotting kill marks for regular maps or nuke maps
         print('Generating kill marks...')
-
         if self.MAP_NAME == 'de_nuke':
             kill_coords_higher = kill_marks.loc[kill_marks['floor'] == 1]
             kill_coords_lower = kill_marks.loc[kill_marks['floor'] == 0]
@@ -757,22 +776,39 @@ class Analyzer:
             plt.axis('off')
         
         else:
-            # Generating heatmap
             plt.plot(kill_marks['X'], kill_marks['Y'], 'x', markersize=15, color='g')
             plt.axis('off')
 
     def map_graph_analysis(self,names=[],round_seconds=False,upper_limit=0, half=0, side='CT/T',heatmap=True, deaths=False, kills=0, bomb_plt=False, round=0,verbose=0):
-
-        # Adjusting heatmap params
+        '''
+        Procedure to generate map graph analysis. Especially used when using in Jupyter Notebooks.
+        - self.parser: demo self.parser object
+        - names: list of player names (default = all players)
+        - upper_limit: end round timer count (in seconds)
+        - half: half of the match (1 or 2) (default = all halves)
+        - side: side to analyze (CT, T or CT/T) (default = CT)
+        - heatmap: boolean to generate heatmap (default = True)
+        - deaths: boolean to generate death marks (default = False)
+        - kills: boolean to generate kill marks (default = False)
+        - bomb_plt: filter only after bomb plant (default = False)
+        - round: round number (default = all rounds)
+        - verbose: verbosity level (0: none, 1: basic)
+        '''
+        # Getting player coordinates
         player_coords = self.get_player_coords(verbose=verbose)
 
+        # Handling heatmap params
+
+        # Defining input names
         if names == []:
             input_names = [n for n in player_coords['name'].unique()]
-
         else:
             input_names = names
-        heatmap_df = self.set_heatmap_data(player_coords,names=input_names,round_seconds=round_seconds, upper_limit=upper_limit,half=half, side=side,bomb_plt=bomb_plt, round=round,verbose=verbose)
+
+        # Getting heatmap dataframe
+        heatmap_df = self.get_heatmap_data(player_coords,names=input_names,round_seconds=round_seconds, upper_limit=upper_limit,half=half, side=side,bomb_plt=bomb_plt, round=round,verbose=verbose)
     
+        # Adjusting side and half params based on heatmap_df info
         if not heatmap_df.empty:
             if half != 0 and side == 'CT/T':
                 side = list(heatmap_df['side'].unique())[0]
@@ -781,6 +817,7 @@ class Analyzer:
         else:
             raise ValueError("Player name(s) probably incorrect")
 
+        # Getting death and kill coordinates if needed
         if deaths:
             death_coords = self.get_death_coords(player_coords, input_names, half, side=side, bomb_plt=bomb_plt, round=round,verbose=verbose)
         else:
@@ -791,6 +828,7 @@ class Analyzer:
         else:
             kill_coords = ()
     
+        # Defining title
         half_cardinality = {0 : 'Full Game', 1 : 'First', 2 : 'Second'}
         title = f"Heatmap for {side} side ({self.MAP_NAME}, {half_cardinality[half]} Half)"
     
@@ -811,23 +849,25 @@ class Analyzer:
     def map_stats_analysis(self, names=[], side='CT/T'):
         """
         Get match stats summary.
-        - match_event_df: dataframe with match important events
-        - name: player name
+        - names: players names (default = all players)
         - side: side to analyze (CT, T or CT/T) (default = CT/T)
 
         return:
         - stats_df: Dataframe with match stats
         """
-
+        # Getting match event dataframe
         match_event_df = self.get_match_event_df(self.get_player_coords())
 
+        # Defining input names
         if names == []:
             input_names = list(set([n for n in match_event_df['attacker_name'].unique().tolist() + match_event_df['user_name'].unique().tolist()]))
         else:
             input_names = names
 
+        # Getting stats dataframe
         stats_df = get_stats(match_event_df, input_names, side)
 
+        # Cleaning the output terminal and returning stats_df
         if not stats_df.empty:
             clear_output()
             return stats_df.reset_index().sort_values(by='K/D Ratio', ascending=False).drop('index', axis=1)
@@ -835,16 +875,34 @@ class Analyzer:
             raise ValueError("Player name(s) probably incorrect")
         
     def generate_dashboard_graph_analysis(self,player_coords,names=[],round_seconds=False,upper_limit=0, half=0, side='CT/T',heatmap=True, deaths=False, kills=0, bomb_plt=False, round=0,verbose=0):
+        '''
+        Procedure to generate map graph analysis. Designed for streamlit app.
+        - player_coords: dataframe with player coordinates
+        - names: list of player names (default = all players)
+        - upper_limit: end round timer count (in seconds)
+        - half: half of the match (1 or 2) (default = all halves)
+        - side: side to analyze (CT, T or CT/T) (default = CT)
+        - heatmap: boolean to generate heatmap (default = True)
+        - deaths: boolean to generate death marks (default = False)
+        - kills: boolean to generate kill marks (default = False)
+        - bomb_plt: filter only after bomb plant (default = False)
+        - round: round number (default = all rounds)
+        - verbose: verbosity level (0: none, 1: basic)
 
-        # Adjusting heatmap params
-
+        return:
+        - fig: figure object with the map image and the desired features
+        '''
+        # Handling heatmap params
+        # Defining input names
         if names == []:
             input_names = [n for n in player_coords['name'].unique()]
-
         else:
             input_names = names
-        heatmap_df = self.set_heatmap_data(player_coords,names=input_names,round_seconds=round_seconds, upper_limit=upper_limit,half=half, side=side,bomb_plt=bomb_plt, round=round,verbose=verbose)
+
+        # Getting heatmap dataframe
+        heatmap_df = self.get_heatmap_data(player_coords,names=input_names,round_seconds=round_seconds, upper_limit=upper_limit,half=half, side=side,bomb_plt=bomb_plt, round=round,verbose=verbose)
     
+        # Adjusting side and half params based on heatmap_df info
         if not heatmap_df.empty:
             if half != 0 and side == 'CT/T':
                 side = list(heatmap_df['side'].unique())[0]
@@ -853,6 +911,7 @@ class Analyzer:
         else:
             raise ValueError("Player name(s) probably incorrect")
 
+        # Getting death and kill coordinates if needed
         if deaths:
             death_coords = self.get_death_coords(player_coords, input_names, half, side=side, bomb_plt=bomb_plt, round=round,verbose=verbose)
         else:
@@ -863,13 +922,11 @@ class Analyzer:
         else:
             kill_coords = ()
     
-        half_cardinality = {0 : 'Full Game', 1 : 'First', 2 : 'Second'}
-    
         # Cleaning the output terminal
         clear_output()
     
         # Generating map image
-        fig = self.generate_map_image()
+        fig = self.generate_map_image(streamlit_app=True)
 
         # Generating features
         if heatmap:

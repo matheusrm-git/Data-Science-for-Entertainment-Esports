@@ -9,10 +9,10 @@ I also include experiments with open datasets and projects that showcase my cont
 ## 📂 Repository Structure
 
 - `cinema/`  
-  Projects related to the film industry: box office predictions, sentiment and reviews analysis, and media consumption trends.
+  Projects related to the film industry.
 
 - `games/`  
-  Studies involving video game data: player behavior, engagement metrics, and market analysis.
+  Studies involving video game data.
 
 - `esports/`  
   Dedicated to **competitive E-sports**.  

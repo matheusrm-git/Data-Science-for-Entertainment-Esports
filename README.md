@@ -35,7 +35,7 @@ I also include experiments with open datasets and projects that showcase my cont
 ## 🚀 Highlights
 
 - 🔥 Movement heatmap for **Counter-Strike 2** using *.dem* files.
-![Streamlit App 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/streamlit_app_demo_2.png)
+![Streamlit App 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/streamlit_app_demo_2.png)
 
 ---
 

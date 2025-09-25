@@ -37,19 +37,19 @@ This project analyzes **Counter-Strike 2** professional match demos and extracts
 
 Using the Demoparser2 library to transform .dem files into metadata dataframes, I was able to obtain a great amount of graphs and statistics, such as kills, deaths, assists, flashbang assists, and KDA. For instance, based on my functions, it's possible to analyze players individually, filtering by round, round time, and even afterplant situations.
 
-For illustration purposes, I've built a Streamlit application to simulate an interactive dashboard and a Jupyter Notebook. Feel free to click on the links or stay with the screenshots.
+For illustration purposes, I've built a Streamlit application to simulate an interactive dashboard and a Jupyter Notebook. Both of the demonstrations use a Blast Open London game of Furia against Legacy. Feel free to click on the links or stay with the screenshots.
 
 - [Live Demo on Streamlit](https://cs2-demo-analyzer-dashboard.streamlit.app/)
 
-![Streamlit App 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/assets/demonstration_prints/streamlit_app_demo_1.png)
-![Streamlit App 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/assets/demonstration_prints/streamlit_app_demo_2.png)
-![Streamlit App 3](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/assets/demonstration_prints/streamlit_app_demo_3.png)  
+![Streamlit App 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/streamlit_app_demo_1.png)
+![Streamlit App 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/streamlit_app_demo_2.png)
+![Streamlit App 3](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/streamlit_app_demo_3.png)  
 
 
-- [Jupyter Notebook](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/Analyzer%20Demonstration%20(Furia%20x%20Legacy).ipynb)
+- [Jupyter Notebook](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/Analyzer%20Demonstration%20(Furia%20x%20Legacy).ipynb)
 
-![Jupyter 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/assets/demonstration_prints/jupyter_demo_1.png)
-![Jupyter 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/CS2-Demo-Analyzer/assets/demonstration_prints/jupyter_demo_2.png)
+![Jupyter 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/jupyter_demo_1.png)
+![Jupyter 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/jupyter_demo_2.png)
 
 
 ---

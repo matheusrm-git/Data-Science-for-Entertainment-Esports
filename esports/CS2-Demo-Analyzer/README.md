@@ -41,15 +41,15 @@ For illustration purposes, I've built a Streamlit application to simulate an int
 
 - [Live Demo on Streamlit](https://cs2-demo-analyzer-dashboard.streamlit.app/)
 
-![Streamlit App 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/streamlit_app_demo_1.png)
-![Streamlit App 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/streamlit_app_demo_2.png)
-![Streamlit App 3](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/streamlit_app_demo_3.png)  
+![Streamlit App 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/streamlit_app_demo_1.png)
+![Streamlit App 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/streamlit_app_demo_2.png)
+![Streamlit App 3](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/streamlit_app_demo_3.png)  
 
 
 - [Jupyter Notebook](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/Analyzer%20Demonstration%20(Furia%20x%20Legacy).ipynb)
 
-![Jupyter 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/jupyter_demo_1.png)
-![Jupyter 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/assets/demonstration_prints/jupyter_demo_2.png)
+![Jupyter 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/jupyter_demo_1.png)
+![Jupyter 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/jupyter_demo_2.png)
 
 
 ---

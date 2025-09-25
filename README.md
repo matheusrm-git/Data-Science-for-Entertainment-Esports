@@ -26,8 +26,8 @@ I also include experiments with open datasets and projects that showcase my cont
 ## 🛠️ Tech Stack
 
 - **Languages:** Python, SQL  
-- **Libraries:** Pandas, NumPy, Matplotlib, Seaborn, Scikit-learn  
-- **Data Viz:** Power BI, Streamlit  
+- **Libraries:** Pandas, NumPy, Scikit-learn  
+- **Data Viz:** Power BI, Streamlit, Matplotlib, Seaborn  
 - **Others:** Git, Jupyter Notebooks  
 
 ---

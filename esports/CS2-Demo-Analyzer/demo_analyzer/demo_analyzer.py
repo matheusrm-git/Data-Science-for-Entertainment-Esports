@@ -113,15 +113,15 @@ MAPS_OVERVIEWS = {
 }
 
 MAPS_STREAMLIT_URL = {
-     "de_ancient":    'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_ancient_radar_psd.png' ,
-     "de_anubis":     'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_anubis_radar_psd.png' ,
-     "de_dust2":      'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_dust2_radar_psd.png' ,
-     "de_inferno":    'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_inferno_radar_psd.png' ,
-     "de_mirage":     'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_mirage_radar_psd.png' ,
-     "de_nuke_lower": 'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_nuke_lower_radar_psd.png' ,
-     "de_nuke":       'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_nuke_radar_psd.png' ,
-     "de_overpass":   'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_overpass_radar_psd.png',
-     "de_train":      'CS2-Demo-Analyzer/assets/CS2_maps_radar/de_train_radar_psd.png'
+     "de_ancient":    'assets/CS2_maps_radar/de_ancient_radar_psd.png' ,
+     "de_anubis":     'assets/CS2_maps_radar/de_anubis_radar_psd.png' ,
+     "de_dust2":      'assets/CS2_maps_radar/de_dust2_radar_psd.png' ,
+     "de_inferno":    'assets/CS2_maps_radar/de_inferno_radar_psd.png' ,
+     "de_mirage":     'assets/CS2_maps_radar/de_mirage_radar_psd.png' ,
+     "de_nuke_lower": 'assets/CS2_maps_radar/de_nuke_lower_radar_psd.png' ,
+     "de_nuke":       'assets/CS2_maps_radar/de_nuke_radar_psd.png' ,
+     "de_overpass":   'assets/CS2_maps_radar/de_overpass_radar_psd.png',
+     "de_train":      'assets/CS2_maps_radar/de_train_radar_psd.png'
 }
 
 MAPS_URL = {
@@ -170,7 +170,7 @@ def get_stats(match_event_df, names=[], side='CT/T'):
 
     #Organizing match_event_df and creating aux variables
     match_event_df = match_event_df.reset_index().drop('index', axis=1)
-    suicides = match_event_df.loc[match_event_df['attacker_name'] == match_event_df['user_name']]
+    match_event_df = match_event_df.loc[match_event_df['attacker_name'] != match_event_df['user_name']]
     match_event_df_k = match_event_df
     match_event_df_d = match_event_df
 
@@ -192,8 +192,7 @@ def get_stats(match_event_df, names=[], side='CT/T'):
     for name in names:
         # Getting kills
         kills = match_event_df_k.loc[match_event_df['attacker_name'] == name]
-        suicide = suicides.loc[suicides['attacker_name'] == name]
-        n_kills = len(kills) - len(suicide)
+        n_kills = len(kills)
 
         # Getting headshots percentage
         headshots = kills.loc[kills['headshot'] == True]
@@ -218,9 +217,9 @@ def get_stats(match_event_df, names=[], side='CT/T'):
 
         # K/D Ratio
         if n_deaths != 0:
-            kd_ratio = round(n_kills/n_deaths,2)
+            kda = round((n_kills+n_assists)/n_deaths,2)
         else:
-            kd_ratio = n_kills
+            kda = n_kills
 
         stats = {
             'Player': name,
@@ -229,7 +228,7 @@ def get_stats(match_event_df, names=[], side='CT/T'):
             'Deaths': n_deaths,
             '% HS': headshot_percentage,
             'Flash Assists': n_af,
-            'K/D Ratio': kd_ratio
+            'KDA': kda
         }
 
         stats_df = pd.concat([stats_df, pd.DataFrame(stats, index=[0])], axis=0)
@@ -412,6 +411,7 @@ class Analyzer:
         - self.parser: demo self.parser object
         - player_coords: dataframe with player coordinates
         - names: list of player names (default = all players)
+        - round_seconds: if True, use upper_limit as round time limit (default = False)
         - upper_limit: end round timer count (optional)
         - half: half of the match (1 or 2) (default = all halves)
         - side: side to analyze (CT, T or CT/T) (default = CT/T)
@@ -495,11 +495,13 @@ class Analyzer:
 
         return heatmap_df
 
-    def get_death_coords(self, players_coords, names=[], half=0, side='CT/T',bomb_plt=False, round=0, verbose=0):
+    def get_death_coords(self, players_coords, names=[],round_seconds=False, upper_limit=0, half=0, side='CT/T',bomb_plt=False, round=0, verbose=0):
         """
         Get player deaths normalized coordinates.
         - player_id: player id
         - names: list of player names
+        - round_seconds: if True, use upper_limit as round time limit (default = False)
+        - upper_limit: end round timer count (optional)
         - half: half of the match (1 or 2) (default = all halves)
         - side: side to analyze (CT, T or CT/T) (default = CT/T)
         - bomb_plt: filter only after bomb plant (default = False)
@@ -514,10 +516,19 @@ class Analyzer:
             map_overview = MAPS_OVERVIEWS[self.MAP_NAME]
         else:
             raise ValueError("Map should be in self.MAP_NAMES")
+        
+        if round_seconds:
+            if upper_limit < 0:
+                raise ValueError("Round time limiters must be in [0, 115] seconds")
+            elif upper_limit > 115:
+                raise ValueError("Round time limiters must be in [0, 115] seconds")
+        else:
+            upper_limit = 155
 
         # Getting deaths event dataframe
         print("Getting deaths coordinates")
         deaths = self.parser.parse_event("player_death", player= ['X', 'Y', 'Z'])
+        deaths = deaths.loc[deaths['attacker_name'] != deaths['user_name']] # Removing suicides
         
         # Filtering deaths and players_coords based on parameters
         death_aux = pd.DataFrame()
@@ -535,6 +546,16 @@ class Analyzer:
 
         deaths = deaths.join(players_coords[['tick', 'side', 'round', 'is_bomb_planted']].set_index('tick'), on='death_tick')
         
+        print("Getting round_ticks...")
+        round_ticks = self.get_round_ticks(upper_limit)
+        
+        print("Filtering round period...")
+        deaths_aux = pd.DataFrame()
+        for round_tick in round_ticks:
+            deaths_aux = pd.concat([deaths_aux, deaths.loc[(deaths['death_tick'] >= round_tick[0]) & (deaths['death_tick'] <= round_tick[1])]], axis=0)
+        deaths_aux.columns = deaths.columns
+        deaths = deaths_aux.dropna(subset=['round']).drop_duplicates() 
+        print(deaths)
         if round:
             print("Choosing round...")
             side = 'CT/T'
@@ -550,7 +571,7 @@ class Analyzer:
                 deaths = deaths.loc[deaths['side'] == 'T']
         elif side != 'CT/T':
             raise ValueError("Side should be in [CT,T]")
-
+        print(deaths)
         if half in [1,2]:
             print("Choosing half")
             deaths['half'] = deaths['death_tick'].apply(lambda x: 1 if x <= self.MATCH_RT_HALF_END_TICK else 2)
@@ -579,11 +600,13 @@ class Analyzer:
 
         return deaths
 
-    def get_kills_coords(self, players_coords, names=[], half=0, side='CT/T',bomb_plt=False, round=0, verbose=0):
+    def get_kills_coords(self, players_coords, names=[],round_seconds=False, upper_limit=0, half=0, side='CT/T',bomb_plt=False, round=0, verbose=0):
         """
         Get player kills normalized coordinates.
         - player_id: player id
         - names: list of player names
+        - round_seconds: if True, use upper_limit as round time limit (default = False)
+        - upper_limit: end round timer count (optional)
         - half: half of the match (1 or 2) (default = all halves)
         - side: side to analyze (CT, T or CT/T) (default = CT/T)
         - bomb_plt: filter only after bomb plant (default = False)
@@ -599,10 +622,19 @@ class Analyzer:
         else:
             raise ValueError("Map should be in self.MAP_NAMES")
 
+        if round_seconds:
+            if upper_limit < 0:
+                raise ValueError("Round time limiters must be in [0, 115] seconds")
+            elif upper_limit > 115:
+                raise ValueError("Round time limiters must be in [0, 115] seconds")
+        else:
+            upper_limit = 155
+
         # Getting kills event dataframe
         print("Getting kills coordinates")
         kills = self.parser.parse_event("player_death", player= ['X', 'Y', 'Z'])
-        
+        kills = kills.loc[kills['attacker_name'] != kills['user_name']] # Removing suicides
+
         # Filtering kills and players_coords based on parameters
         kills_aux = pd.DataFrame()
         players_coords_aux = pd.DataFrame()
@@ -617,7 +649,17 @@ class Analyzer:
         kills['floor'] = kills['Z'].apply(lambda x: 0 if x < NUKE_Z_THRESHOLD else 1)
 
         kills = kills.join(players_coords[['tick', 'side', 'round', 'is_bomb_planted']].set_index('tick'), on='kill_tick')
+        print(kills)
+        print("Getting round_ticks...")
+        round_ticks = self.get_round_ticks(upper_limit)
         
+        print("Filtering round period...")
+        kills_aux = pd.DataFrame()
+        for round_tick in round_ticks:
+            kills_aux = pd.concat([kills_aux, kills.loc[(kills['kill_tick'] >= round_tick[0]) & (kills['kill_tick'] <= round_tick[1])]], axis=0)
+        kills_aux.columns = kills.columns
+        kills = kills_aux.dropna(subset=['round']).drop_duplicates()
+        print(kills)
         if round:
             print("Choosing round...")
             side = 'CT/T'
@@ -819,12 +861,12 @@ class Analyzer:
 
         # Getting death and kill coordinates if needed
         if deaths:
-            death_coords = self.get_death_coords(player_coords, input_names, half, side=side, bomb_plt=bomb_plt, round=round,verbose=verbose)
+            death_coords = self.get_death_coords(player_coords, input_names, round_seconds=round_seconds, upper_limit=upper_limit,half=half, side=side, bomb_plt=bomb_plt, round=round,verbose=verbose)
         else:
             death_coords = ()
 
         if kills:
-            kill_coords = self.get_kills_coords(player_coords, input_names, half, side=side, bomb_plt=bomb_plt, round=round)
+            kill_coords = self.get_kills_coords(player_coords, input_names,round_seconds=round_seconds, upper_limit=upper_limit, half=half, side=side, bomb_plt=bomb_plt, round=round)
         else:
             kill_coords = ()
     
@@ -870,7 +912,7 @@ class Analyzer:
         # Cleaning the output terminal and returning stats_df
         if not stats_df.empty:
             clear_output()
-            return stats_df.reset_index().sort_values(by='K/D Ratio', ascending=False).drop('index', axis=1)
+            return stats_df.reset_index().sort_values(by='KDA', ascending=False).drop('index', axis=1)
         else:
             raise ValueError("Player name(s) probably incorrect")
         
@@ -913,12 +955,12 @@ class Analyzer:
 
         # Getting death and kill coordinates if needed
         if deaths:
-            death_coords = self.get_death_coords(player_coords, input_names, half, side=side, bomb_plt=bomb_plt, round=round,verbose=verbose)
+            death_coords = self.get_death_coords(player_coords, input_names, round_seconds=round_seconds, upper_limit=upper_limit,half=half, side=side, bomb_plt=bomb_plt, round=round,verbose=verbose)
         else:
             death_coords = ()
 
         if kills:
-            kill_coords = self.get_kills_coords(player_coords, input_names, half, side=side, bomb_plt=bomb_plt, round=round)
+            kill_coords = self.get_kills_coords(player_coords, input_names,round_seconds=round_seconds, upper_limit=upper_limit,half=half, side=side, bomb_plt=bomb_plt, round=round)
         else:
             kill_coords = ()
     

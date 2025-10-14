@@ -220,17 +220,17 @@ with st.container(horizontal=True, horizontal_alignment='center'):
     with st.container(width=800, horizontal_alignment='center'):
         # Menu Container
         st.subheader('Menu', divider='gray')
-        menu = st.container() 
+        menu = st.container(horizontal= True, horizontal_alignment='center') 
         with menu:
             filter_container = st.container(horizontal= True, horizontal_alignment='center', width=300)
             with filter_container:
                 year_filter = st.slider('Release Year', 1874, 2025, 2000, 1)
                 output_samples = st.selectbox('How many movies you want?', [5,10,15,20],index=None, placeholder="Choose...")
 
-            buttons_container = st.container(horizontal=True)
-            with buttons_container:
-                add_genre_button = st.button('Add Genre', on_click=add_genre, args=[MAX_NUM_GENRES])
-                clear_button = st.button('Clear', on_click=clear_genre)
+        buttons_container = st.container(horizontal=True)
+        with buttons_container:
+            add_genre_button = st.button('Add Genre', on_click=add_genre, args=[MAX_NUM_GENRES])
+            clear_button = st.button('Clear', on_click=clear_genre)
                 
 
         # Features Selection Container

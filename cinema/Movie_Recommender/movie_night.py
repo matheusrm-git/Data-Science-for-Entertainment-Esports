@@ -62,7 +62,7 @@ def load_recommender():
     Returns:
     model - recommender model deserealized
     '''
-    model = keras.models.load_model('model_keras/content_based_recommender.keras', custom_objects={'NormLayer' : rm.NormLayer})
+    model = keras.models.load_model('cinema/Movie_Recommender/model_keras/content_based_recommender.keras', custom_objects={'NormLayer' : rm.NormLayer})
 
     return model
 

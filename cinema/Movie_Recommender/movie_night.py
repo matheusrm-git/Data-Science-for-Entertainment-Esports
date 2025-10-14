@@ -212,7 +212,9 @@ st.set_page_config(page_title='Movie Night', layout='wide')
 
 
 # Title
-st.header('Movie Night !', divider='grey')
+with st.container(horizontal=True, horizontal_alignment='center'):
+    with st.container(horizontal=True, horizontal_alignment='center',width=1700):
+        st.title('_Movie Night !_')
 
 
 

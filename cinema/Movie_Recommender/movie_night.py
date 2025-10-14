@@ -214,9 +214,9 @@ st.set_page_config(page_title='Movie Night', layout='wide')
 # Title
 st.header('Movie Night !', divider='grey')
 
-left_col,right_col = st.columns(2)
 
-with left_col:
+
+with st.container(horizontal=True, horizontal_alignment='center'):
     with st.container(width=1000, horizontal_alignment='center'):
         # Menu Container
         st.subheader('Menu')
@@ -261,7 +261,7 @@ with left_col:
         with recommend_b_container:
             recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !')
 
-with right_col:
+
     with st.container(width=500, horizontal_alignment='center'):
         # Results Container
         results = st.container()

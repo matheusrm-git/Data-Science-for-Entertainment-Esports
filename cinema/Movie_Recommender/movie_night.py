@@ -217,7 +217,7 @@ st.header('Movie Night !', divider='grey')
 left_col,right_col = st.columns(2)
 
 with left_col:
-    with st.container(width=500):
+    with st.container(width=1000, horizontal_alignment='center'):
         # Menu Container
         st.subheader('Menu')
         menu = st.container() 
@@ -262,7 +262,7 @@ with left_col:
             recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !')
 
 with right_col:
-    with st.container(width=500):
+    with st.container(width=500, horizontal_alignment='center'):
         # Results Container
         results = st.container()
         with results:

@@ -186,6 +186,8 @@ MAX_NUM_GENRES = len(USER_COLS[2:])
 model = load_recommender()
 scalerUser,scalerMovies,scalerTarget = load_scalers()
 
+output_samples = 10
+
 # Initializing session_state attributes and button functions
 if 'num_genres' not in st.session_state:
     st.session_state.num_genres = 5
@@ -206,7 +208,7 @@ _lock = RLock()
 user_dict = {x:0.0 for x in USER_COLS}
 
 # Setting up home page
-st.set_page_config(page_title='Movie Night')
+st.set_page_config(page_title='Movie Night', layout='wide')
 
 # Title
 st.header('Movie Night !', divider='grey')
@@ -263,6 +265,9 @@ with results:
                 
         user_vec = gen_user_vec(user_dict)
         output = make_recommendations(movies_encoded_by_genre, links_df, user_vec, MIN_NUM_RATINGS,USER_COLS, scalerUser, scalerMovies, scalerTarget, year_filter=year_filter)
+
+        if not output_samples:
+            output_samples = 10
 
         st.header('Selected For You:', divider='grey')
         st.dataframe(

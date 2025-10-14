@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-from model_keras import recommender_model as rm
+import model_keras.recommender_model as rm
 import keras
 from threading import RLock
 import joblib

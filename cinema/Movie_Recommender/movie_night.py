@@ -210,71 +210,76 @@ user_dict = {x:0.0 for x in USER_COLS}
 # Setting up home page
 st.set_page_config(page_title='Movie Night', layout='wide')
 
+
 # Title
 st.header('Movie Night !', divider='grey')
 
-# Menu Container
-st.subheader('Menu')
-menu = st.container() 
-with menu:
-    filter_container = st.container(horizontal= True, horizontal_alignment='center')
-    with filter_container:
-        year_filter = st.slider('Release Year', 1874, 2025, 2000, 1)
-        output_samples = st.selectbox('How many movies you want?', [5,10,15,20],index=None, placeholder="Choose...")
+left_col,right_col = st.columns(2)
 
-    buttons_container = st.container(horizontal=True)
-    with buttons_container:
-        add_genre_button = st.button('Add Genre', on_click=add_genre, args=[MAX_NUM_GENRES])
-        clear_button = st.button('Clear', on_click=clear_genre)
-        
+with left_col:
+    # Menu Container
+    st.subheader('Menu')
+    menu = st.container() 
+    with menu:
+        filter_container = st.container(horizontal= True, horizontal_alignment='center')
+        with filter_container:
+            year_filter = st.slider('Release Year', 1874, 2025, 2000, 1)
+            output_samples = st.selectbox('How many movies you want?', [5,10,15,20],index=None, placeholder="Choose...")
 
-# Features Selection Container
-features_selec = st.container(height=450)
-with features_selec:
-    genre_names_col, rating_col = st.columns(2)
-    feature_input = ['']*MAX_NUM_GENRES
-    rating_input = np.zeros(MAX_NUM_GENRES)
-    if st.session_state.num_genres <= MAX_NUM_GENRES:
-        for i in range(st.session_state.num_genres):
-            with genre_names_col:
-                if 'feature_'+str(i) in st.session_state:
-                    feature_input[i] = st.session_state['feature_'+str(i)]
-                    del st.session_state['feature_'+str(i)]
-                    st.selectbox('Genre', USER_COLS[2:],index=None, placeholder="Choose genre...", key='feature_'+str(i)) 
-                else:
-                    feature_input[i] = st.selectbox('Genre', USER_COLS[2:],index=None, placeholder="Choose genre...", key='feature_'+str(i))
-            with rating_col:
-                if 'rating_'+str(i) in st.session_state:
-                    rating_input[i] = st.session_state['rating_'+str(i)]
-                    del st.session_state['rating_'+str(i)]
-                    st.slider('How much do you like?', 0.0, 5.0, 0.0, 0.5, key='rating_'+str(i))
-                else:
-                    rating_input[i] = st.slider('How much do you like?', 0.0, 5.0, 0.0, 0.5, key='rating_'+str(i))
+        buttons_container = st.container(horizontal=True)
+        with buttons_container:
+            add_genre_button = st.button('Add Genre', on_click=add_genre, args=[MAX_NUM_GENRES])
+            clear_button = st.button('Clear', on_click=clear_genre)
+            
 
-# "GIVE ME MOVIE RECOMMENDATIONS !" Button
-recommend_b_container = st.container(horizontal= True, horizontal_alignment='center')
-with recommend_b_container:
-    recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !')
+    # Features Selection Container
+    features_selec = st.container(height=450)
+    with features_selec:
+        genre_names_col, rating_col = st.columns(2)
+        feature_input = ['']*MAX_NUM_GENRES
+        rating_input = np.zeros(MAX_NUM_GENRES)
+        if st.session_state.num_genres <= MAX_NUM_GENRES:
+            for i in range(st.session_state.num_genres):
+                with genre_names_col:
+                    if 'feature_'+str(i) in st.session_state:
+                        feature_input[i] = st.session_state['feature_'+str(i)]
+                        del st.session_state['feature_'+str(i)]
+                        st.selectbox('Genre', USER_COLS[2:],index=None, placeholder="Choose genre...", key='feature_'+str(i)) 
+                    else:
+                        feature_input[i] = st.selectbox('Genre', USER_COLS[2:],index=None, placeholder="Choose genre...", key='feature_'+str(i))
+                with rating_col:
+                    if 'rating_'+str(i) in st.session_state:
+                        rating_input[i] = st.session_state['rating_'+str(i)]
+                        del st.session_state['rating_'+str(i)]
+                        st.slider('How much do you like?', 0.0, 5.0, 0.0, 0.5, key='rating_'+str(i))
+                    else:
+                        rating_input[i] = st.slider('How much do you like?', 0.0, 5.0, 0.0, 0.5, key='rating_'+str(i))
 
-# Results Container
-results = st.container()
-with results:
-    if recommend_button:
-        for i in range(st.session_state.num_genres):
-            user_dict[feature_input[i]] = rating_input[i]
-                
-        user_vec = gen_user_vec(user_dict)
-        output = make_recommendations(movies_encoded_by_genre, links_df, user_vec, MIN_NUM_RATINGS,USER_COLS, scalerUser, scalerMovies, scalerTarget, year_filter=year_filter)
+    # "GIVE ME MOVIE RECOMMENDATIONS !" Button
+    recommend_b_container = st.container(horizontal= True, horizontal_alignment='center')
+    with recommend_b_container:
+        recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !')
 
-        if not output_samples:
-            output_samples = 10
+with right_col:
+    # Results Container
+    results = st.container()
+    with results:
+        if recommend_button:
+            for i in range(st.session_state.num_genres):
+                user_dict[feature_input[i]] = rating_input[i]
+                    
+            user_vec = gen_user_vec(user_dict)
+            output = make_recommendations(movies_encoded_by_genre, links_df, user_vec, MIN_NUM_RATINGS,USER_COLS, scalerUser, scalerMovies, scalerTarget, year_filter=year_filter)
 
-        st.header('Selected For You:', divider='grey')
-        st.dataframe(
-            output.head(output_samples),
-            column_config={
-                'title' : ' Movie Title',
-                'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link')
-            },
-            hide_index=True
-        )
+            if not output_samples:
+                output_samples = 10
+
+            st.header('Selected For You:', divider='grey')
+            st.dataframe(
+                output.head(output_samples),
+                column_config={
+                    'title' : ' Movie Title',
+                    'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link')
+                },
+                hide_index=True
+            )

@@ -217,12 +217,12 @@ st.header('Movie Night !', divider='grey')
 
 
 with st.container(horizontal=True, horizontal_alignment='center'):
-    with st.container(width=1000, horizontal_alignment='center'):
+    with st.container(width=800, horizontal_alignment='center'):
         # Menu Container
-        st.subheader('Menu')
+        st.subheader('Menu', divider='gray')
         menu = st.container() 
         with menu:
-            filter_container = st.container(horizontal= True, horizontal_alignment='center')
+            filter_container = st.container(horizontal= True, horizontal_alignment='center', width=300)
             with filter_container:
                 year_filter = st.slider('Release Year', 1874, 2025, 2000, 1)
                 output_samples = st.selectbox('How many movies you want?', [5,10,15,20],index=None, placeholder="Choose...")
@@ -266,6 +266,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
         # Results Container
         results = st.container()
         with results:
+            st.header('Selected For You:', divider='grey')
             if recommend_button:
                 for i in range(st.session_state.num_genres):
                     user_dict[feature_input[i]] = rating_input[i]
@@ -276,7 +277,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                 if not output_samples:
                     output_samples = 10
 
-                st.header('Selected For You:', divider='grey')
+                
                 st.dataframe(
                     output.head(output_samples),
                     column_config={

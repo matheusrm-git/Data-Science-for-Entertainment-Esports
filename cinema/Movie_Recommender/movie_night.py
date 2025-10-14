@@ -16,8 +16,8 @@ def load_data():
     movies_encoded_by_genre - All movies one hot encoded by genre
     links_df - Identifiers that can be used to link to other sources of movie data
     '''
-    movies_encoded_by_genre = pd.read_csv('csv_files/movies_encoded_by_genre_big.csv')
-    links_df = pd.read_csv('csv_files/links.csv')
+    movies_encoded_by_genre = pd.read_csv('cinema/Movie_Recommender/csv_files/movies_encoded_by_genre_big.csv')
+    links_df = pd.read_csv('cinema/Movie_Recommender/csv_files/links.csv')
     return movies_encoded_by_genre, links_df
 
 @st.cache_data
@@ -48,9 +48,9 @@ def load_scalers():
     scalerMovies - movies vector standard scaler
     scalerTarget - rating predictions vector min/max scaler
     '''
-    scalerUser = joblib.load('scalers/scalerUser.gz')
-    scalerMovies = joblib.load('scalers/scalerMovies.gz')
-    scalerTarget = joblib.load('scalers/scalerTarget.gz')
+    scalerUser = joblib.load('cinema/Movie_Recommender/scalers/scalerUser.gz')
+    scalerMovies = joblib.load('cinema/Movie_Recommender/scalers/scalerMovies.gz')
+    scalerTarget = joblib.load('cinema/Movie_Recommender/scalers/scalerTarget.gz')
 
     return scalerUser,scalerMovies,scalerTarget
 

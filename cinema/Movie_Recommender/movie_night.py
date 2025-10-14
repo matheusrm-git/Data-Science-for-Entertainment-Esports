@@ -219,10 +219,10 @@ st.header('Movie Night !', divider='grey')
 with st.container(horizontal=True, horizontal_alignment='center'):
     with st.container(width=800, horizontal_alignment='center'):
         # Menu Container
-        st.subheader('Menu', divider='gray')
+        st.header('Menu', divider='gray')
         menu = st.container(horizontal= True, horizontal_alignment='center') 
         with menu:
-            filter_container = st.container(horizontal= True, horizontal_alignment='center', width=300)
+            filter_container = st.container(horizontal= True, horizontal_alignment='center', width=500)
             with filter_container:
                 year_filter = st.slider('Release Year', 1874, 2025, 2000, 1)
                 output_samples = st.selectbox('How many movies you want?', [5,10,15,20],index=None, placeholder="Choose...")
@@ -262,7 +262,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
             recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !')
 
 
-    with st.container(width=500, horizontal_alignment='center'):
+    with st.container(width=900, horizontal_alignment='center'):
         # Results Container
         results = st.container()
         with results:

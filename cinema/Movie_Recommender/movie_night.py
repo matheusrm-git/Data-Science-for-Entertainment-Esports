@@ -280,7 +280,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                         
                 user_vec = gen_user_vec(user_dict)
                 output = make_recommendations(movies_encoded_by_genre, links_df, user_vec, MIN_NUM_RATINGS,USER_COLS, scalerUser, scalerMovies, scalerTarget, year_filter=year_filter)
-
+                output['seen'] = False
 
                 if not output_samples:
                     output_samples = 10
@@ -292,7 +292,8 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                             'title' : ' Movie Title',
                             'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f'),
                             'y_pu' : st.column_config.NumberColumn('Recommender Pred.', format='%.2f'),
-                            'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link')
+                            'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link'),
+                            'seen' : st.column_config.CheckboxColumn('seen?')
                         },
                         hide_index=True
                     )

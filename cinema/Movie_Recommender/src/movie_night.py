@@ -48,9 +48,9 @@ def load_scalers():
     scalerMovies - movies vector standard scaler
     scalerTarget - rating predictions vector min/max scaler
     '''
-    scalerUser = joblib.load('cinema/Movie_Recommender/scalers/scalerUser.gz')
-    scalerMovies = joblib.load('cinema/Movie_Recommender/scalers/scalerMovies.gz')
-    scalerTarget = joblib.load('cinema/Movie_Recommender/scalers/scalerTarget.gz')
+    scalerUser = joblib.load('cinema/Movie_Recommender/src/scalers/scalerUser.gz')
+    scalerMovies = joblib.load('cinema/Movie_Recommender/src/scalers/scalerMovies.gz')
+    scalerTarget = joblib.load('cinema/Movie_Recommender/src/scalers/scalerTarget.gz')
 
     return scalerUser,scalerMovies,scalerTarget
 
@@ -62,7 +62,7 @@ def load_recommender():
     Returns:
     model - recommender model deserealized
     '''
-    model = keras.models.load_model('cinema/Movie_Recommender/model_keras/content_based_recommender.keras', custom_objects={'NormLayer' : rm.NormLayer})
+    model = keras.models.load_model('cinema/Movie_Recommender/src/model_keras/content_based_recommender.keras', custom_objects={'NormLayer' : rm.NormLayer})
 
     return model
 

@@ -206,13 +206,12 @@ user_dict = {x:0.0 for x in USER_COLS}
 
 # Setting up home page
 st.set_page_config(page_title='Movie Night', layout='wide')
-st.logo('cinema/Movie_Recommender/img/movie_night_logo.png', size='large')
 
 # Title
 with st.container(horizontal=True, horizontal_alignment='center'):
     with st.container(horizontal=True, horizontal_alignment='center',width=1700):
-        st.title('_Movie Night !_')
-
+        #st.title('_Movie Night !_')
+        st.image('cinema/Movie_Recommender/img/movie_night_logo.png')
 
 
 with st.container(horizontal=True, horizontal_alignment='center'):

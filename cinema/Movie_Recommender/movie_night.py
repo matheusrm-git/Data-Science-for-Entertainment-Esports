@@ -289,22 +289,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                     output_samples = 10
 
                 with st.container():
-                    o = st.data_editor(
-                        output.head(output_samples).drop(columns=['movieId']),
-                        column_config={
-                            'title' : ' Movie Title',
-                            'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f'),
-                            'y_pu' : st.column_config.NumberColumn('Recommender Pred.', format='%.2f'),
-                            'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link'),
-                            'seen' : st.column_config.CheckboxColumn('seen?')
-                        },
-                        disabled=['title', 'avg_movie_rating', 'y_pu', 'imdb_url'],
-                        hide_index=True,
-                        key = 1
-                    )
-
-                if st.button('test'):
-                    st.session_state[1] = st.data_editor(
+                    st.data_editor(
                         output.head(output_samples).drop(columns=['movieId']),
                         column_config={
                             'title' : ' Movie Title',
@@ -316,6 +301,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                         disabled=['title', 'avg_movie_rating', 'y_pu', 'imdb_url'],
                         hide_index=True
                     )
+
                 
                 with st.container():
                     st.caption("Movie Night AVG Rate - Average rate calculated by movie night recommender model.")

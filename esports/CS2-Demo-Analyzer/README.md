@@ -39,7 +39,7 @@ Using the Demoparser2 library to transform .dem files into metadata dataframes, 
 
 For illustration purposes, I've built a Streamlit application to simulate an interactive dashboard and a Jupyter Notebook. Both of the demonstrations use a Blast Open London game of Furia against Legacy. Feel free to click on the links or stay with the screenshots.
 
-- [Live Demo on Streamlit](https://cs2-demo-analyzer-dashboard.streamlit.app/)
+- [Live Demo on Streamlit](https://cs2-analyzer-dashboard.streamlit.app/)
 
 ![Streamlit App 1](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/streamlit_app_demo_1.png)
 ![Streamlit App 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/streamlit_app_demo_2.png)

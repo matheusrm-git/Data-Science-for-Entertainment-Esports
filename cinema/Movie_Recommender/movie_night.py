@@ -190,8 +190,8 @@ output_samples = 10
 
 # Initializing session_state attributes and button functions
 if 'whatched_movies' not in st.session_state:
-    st.session_state.whatched_movies = movies_encoded_by_genre[['movieId']]
-    st.session_state.whatched_movies['seen'] = st.session_state.whatched_movies['seen'].apply(lambda x:False)
+    st.session_state.whatched_movies = []
+    
 
 if 'num_genres' not in st.session_state:
     st.session_state.num_genres = 5
@@ -281,15 +281,13 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                 user_vec = gen_user_vec(user_dict)
                 output = make_recommendations(movies_encoded_by_genre, links_df, user_vec, MIN_NUM_RATINGS,USER_COLS, scalerUser, scalerMovies, scalerTarget, year_filter=year_filter)
 
-                output = pd.merge(output, st.session_state.whatched_movies, on='moviesId')
-                output = output.loc[output['seen'] == False]
 
                 if not output_samples:
                     output_samples = 10
 
                 with st.container():
                     st.dataframe(
-                        output.head(output_samples).drop(columns=['moviesId', 'seen']),
+                        output.head(output_samples),
                         column_config={
                             'title' : ' Movie Title',
                             'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f'),

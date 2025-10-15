@@ -286,7 +286,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                     output_samples = 10
 
                 with st.container():
-                    st.data_editor(
+                    o = st.data_editor(
                         output.head(output_samples).drop(columns=['movieId']),
                         column_config={
                             'title' : ' Movie Title',

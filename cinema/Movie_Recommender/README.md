@@ -59,7 +59,7 @@ These embeddings are learned via supervised training on user–movie rating pair
 
 You can try the live demo here: [🔗 Streamlit App Link](https://movienightapp.streamlit.app/)
 
-![Movie Night !](https://github.com/matheusrm-git/Data_Science_for_Entertainment_Esports/tree/main/cinema/Movie_Recommender/img/app_screanshot.png)
+![Movie Night !](https://github.com/matheusrm-git/Data_Science_for_Entertainment_Esports/blob/main/cinema/Movie_Recommender/img/app_screanshot.png)
 
 ---
 

@@ -10,7 +10,7 @@ I also include experiments with open datasets and projects that showcase my cont
 
 - `cinema/`  
   Projects related to the film industry.
-
+  Includes a **movie recommendation system** powered by a **neural network built with TensorFlow**, trained on millions of user ratings from the **MovieLens dataset**.
 - `games/`  
   Studies involving video game data.
 
@@ -33,9 +33,11 @@ I also include experiments with open datasets and projects that showcase my cont
 ---
 
 ## 🚀 Highlights
+- 🔥 Movie Night ! - Movie Recommendation System with Neural Networks
+![Movie_Night!](https://github.com/matheusrm-git/Data_Science_for_Entertainment_Esports/blob/main/cinema/Movie_Recommender/img/app_screanshot.png)
 
 - 🔥 Movement heatmap for **Counter-Strike 2** using *.dem* files.
-![Streamlit App 2](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/streamlit_app_demo_2.png)
+![CS2 Demo Analyzer](https://github.com/matheusrm-git/Data-Science-for-Entertainment-Esports/blob/main/esports/CS2-Demo-Analyzer/demo_analyzer/assets/demonstration_prints/streamlit_app_demo_2.png)
 
 ---
 

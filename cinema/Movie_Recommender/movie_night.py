@@ -207,6 +207,22 @@ user_dict = {x:0.0 for x in USER_COLS}
 # Setting up home page
 st.set_page_config(page_title='Movie Night', layout='wide')
 
+def add_bg_from_url():
+        st.markdown(
+            """
+            <style>
+            .stApp {
+                background-image: url("cinema/Movie_Recommender/img/movie_night_logo.png");
+                background-size: cover;
+                background-attachment: fixed;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+add_bg_from_url()
+
 # Title
 with st.container(horizontal=True, horizontal_alignment='center',height='content'):
     with st.container(horizontal=True, horizontal_alignment='center', height='content'):

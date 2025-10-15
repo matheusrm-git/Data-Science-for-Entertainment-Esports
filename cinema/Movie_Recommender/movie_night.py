@@ -286,7 +286,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                     output_samples = 10
 
                 with st.container():
-                    st.dataframe(
+                    st.data_editor(
                         output.head(output_samples).drop(columns=['movieId']),
                         column_config={
                             'title' : ' Movie Title',
@@ -295,6 +295,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                             'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link'),
                             'seen' : st.column_config.CheckboxColumn('seen?')
                         },
+                        disabled=['title', 'avg_movie_rating', 'y_pu', 'imdb_url'],
                         hide_index=True
                     )
 

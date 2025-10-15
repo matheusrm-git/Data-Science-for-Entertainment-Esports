@@ -267,7 +267,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
 
     with st.container(width=900, horizontal_alignment='center'):
         # Results Container
-        results = st.container()
+        results = st.container(horizontal_alignment='center')
         with results:
             st.header('Selected For You:', divider='grey')
             if recommend_button:
@@ -280,7 +280,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                 if not output_samples:
                     output_samples = 10
 
-                with st.container(horizontal_alignment='center'):
+                with st.container():
                     st.dataframe(
                         output.head(output_samples).drop(columns=['movieId']),
                         column_config={

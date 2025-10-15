@@ -299,9 +299,10 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                             'seen' : st.column_config.CheckboxColumn('seen?')
                         },
                         disabled=['title', 'avg_movie_rating', 'y_pu', 'imdb_url'],
-                        hide_index=True
+                        hide_index=True,
+                        key = 1 
                     )
-
+                    st.write(st.session_state[1])
                 
                 with st.container():
                     st.caption("Movie Night AVG Rate - Average rate calculated by movie night recommender model.")

@@ -294,8 +294,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                             width='content'
                         )
                 
-                with st.container(horizontal= True,horizontal_alignment='center'):
-                    with st.container(horizontal= True,horizontal_alignment='center'):
-                        st.caption("Movie Night AVG Rate - Average rate calculated by movie night recommender model.")
-                        st.caption("Recommender Pred. - Predicted rate you would give based on menu selected options.")
+                with st.container():
+                    st.caption("Movie Night AVG Rate - Average rate calculated by movie night recommender model.")
+                    st.caption("Recommender Pred. - Predicted rate you would give based on menu selected options.")
                     

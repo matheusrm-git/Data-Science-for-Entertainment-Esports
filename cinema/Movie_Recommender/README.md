@@ -65,14 +65,13 @@ You can try the live demo here: [🔗 Streamlit App Link](https://movienightapp.
 
 ## 📂 Repository Structure
 
-```python
+```
 
 📦 Movie_Recommender/
 ├── csv_files/ # Dataset files (not included in repo)
 ├── notebooks/ # Exploratory notebooks
 ├── src/ # Model training and Streamlit app scripts
 ├── img/ # Images used in the project
-├── requirements.txt # Dependencies
 └── README.md # Project documentation
 
 ```

@@ -207,22 +207,6 @@ user_dict = {x:0.0 for x in USER_COLS}
 # Setting up home page
 st.set_page_config(page_title='Movie Night', layout='wide')
 
-def add_bg_from_url():
-        st.markdown(
-            """
-            <style>
-            .stApp {
-                background-image: url("https://github.com/matheusrm-git/Data_Science_for_Entertainment_Esports/blob/main/cinema/Movie_Recommender/img/background.jpg");
-                background-size: cover;
-                background-attachment: fixed;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-
-add_bg_from_url()
-
 # Title
 with st.container(horizontal=True, horizontal_alignment='center',height='content'):
     with st.container(horizontal=True, horizontal_alignment='center', height='content'):

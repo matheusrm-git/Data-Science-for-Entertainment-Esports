@@ -209,7 +209,7 @@ st.set_page_config(page_title='Movie Night', layout='wide')
 
 # Title
 with st.container(horizontal=True, horizontal_alignment='center'):
-    with st.container(horizontal=True, horizontal_alignment='center',width=1700):
+    with st.container(horizontal=True, horizontal_alignment='center',width=800, height=450):
         #st.title('_Movie Night !_')
         st.image('cinema/Movie_Recommender/img/movie_night_logo.png')
 

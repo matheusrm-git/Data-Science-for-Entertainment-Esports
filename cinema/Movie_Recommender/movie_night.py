@@ -177,7 +177,7 @@ def make_recommendations(movies_encoded_by_genre, links_df, user_vec, min_num_ra
     links_df['imdb_url'] = links_df['imdbId'].apply(lambda x: "https://www.imdb.com/title/tt"+ str(x) + "/")
     output = pd.merge(output, links_df[['movieId','imdb_url']], on='movieId')
 
-    return output[['title','avg_movie_rating','y_pu','imdb_url']]
+    return output[['movieId','title','avg_movie_rating','y_pu','imdb_url']]
 
 # Loading data, scalers, constants, and model
 movies_encoded_by_genre, links_df = load_data()
@@ -189,6 +189,10 @@ scalerUser,scalerMovies,scalerTarget = load_scalers()
 output_samples = 10
 
 # Initializing session_state attributes and button functions
+if 'whatched_movies' not in st.session_state:
+    st.session_state.whatched_movies = movies_encoded_by_genre[['movieId']]
+    st.session_state.whatched_movies['seen'] = st.session_state.whatched_movies['seen'].apply(lambda x:False)
+
 if 'num_genres' not in st.session_state:
     st.session_state.num_genres = 5
 
@@ -277,12 +281,15 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                 user_vec = gen_user_vec(user_dict)
                 output = make_recommendations(movies_encoded_by_genre, links_df, user_vec, MIN_NUM_RATINGS,USER_COLS, scalerUser, scalerMovies, scalerTarget, year_filter=year_filter)
 
+                output = pd.merge(output, st.session_state.whatched_movies, on='moviesId')
+                output = output.loc[output['seen'] == False]
+
                 if not output_samples:
                     output_samples = 10
 
                 with st.container():
                     st.dataframe(
-                        output.head(output_samples),
+                        output.head(output_samples).drop(columns=['moviesId', 'seen']),
                         column_config={
                             'title' : ' Movie Title',
                             'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f'),
@@ -291,8 +298,11 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                         },
                         hide_index=True
                     )
+                    st.dataframe(st.session_state.whatched_movies.loc[st.session_state.whatched_movies['moviesId'] == output.head(output_samples)['moviesId']][['moviesId', 'seen']])
+
+                
                 
                 with st.container():
-                    st.write("Movie Night AVG Rate - Average rate calculated by movie night recommender model.")
-                    st.write("Recommender Pred. - Predicted rate you would give based on menu selected options.")
+                    st.caption("Movie Night AVG Rate - Average rate calculated by movie night recommender model.")
+                    st.caption("Recommender Pred. - Predicted rate you would give based on menu selected options.")
                     

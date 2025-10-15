@@ -285,11 +285,12 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                         output.head(output_samples).drop(columns=['movieId']),
                         column_config={
                             'title' : ' Movie Title',
-                            'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f',width='small'),
-                            'y_pu' : st.column_config.NumberColumn('Recommender Pred.', format='%.2f', width='small'),
+                            'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f'),
+                            'y_pu' : st.column_config.NumberColumn('Recommender Pred.', format='%.2f'),
                             'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link')
                         },
                         hide_index=True,
+                        width='content'
                     )
                 
                 with st.container():

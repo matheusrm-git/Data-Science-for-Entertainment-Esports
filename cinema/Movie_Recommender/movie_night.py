@@ -189,13 +189,6 @@ scalerUser,scalerMovies,scalerTarget = load_scalers()
 output_samples = 10
 
 # Initializing session_state attributes and button functions
-if 'rec_button_pressed' not in st.session_state:
-    st.session_state.rec_button_pressed = False
-
-def press_rec_button():
-    st.session_state.rec_button_pressed = True
-    
-
 if 'num_genres' not in st.session_state:
     st.session_state.num_genres = 5
 
@@ -269,7 +262,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
         st.caption('Obs.: More information you give, more personalized the recommendations will be.')
         recommend_b_container = st.container(horizontal= True, horizontal_alignment='center')
         with recommend_b_container:
-            recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !', type='primary', on_click=press_rec_button)
+            recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !', type='primary')
 
 
     with st.container(width=900, horizontal_alignment='center'):
@@ -277,37 +270,28 @@ with st.container(horizontal=True, horizontal_alignment='center'):
         results = st.container()
         with results:
             st.header('Selected For You:', divider='grey')
-            if st.session_state.rec_button_pressed:
+            if recommend_button:
                 for i in range(st.session_state.num_genres):
                     user_dict[feature_input[i]] = rating_input[i]
                         
                 user_vec = gen_user_vec(user_dict)
                 output = make_recommendations(movies_encoded_by_genre, links_df, user_vec, MIN_NUM_RATINGS,USER_COLS, scalerUser, scalerMovies, scalerTarget, year_filter=year_filter)
-                output['seen'] = False
-
-                if 1 in st.session_state:
-                    for idx, state in st.session_state[1]['edited_rows'].items():
-                        if state['seen'] == True:
-                            output = output.drop(idx)
 
                 if not output_samples:
                     output_samples = 10
 
                 with st.container():
-                    st.data_editor(
+                    st.dataframe(
                         output.head(output_samples).drop(columns=['movieId']),
                         column_config={
                             'title' : ' Movie Title',
                             'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f'),
                             'y_pu' : st.column_config.NumberColumn('Recommender Pred.', format='%.2f'),
-                            'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link'),
-                            'seen' : st.column_config.CheckboxColumn('seen?')
+                            'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link')
                         },
                         disabled=['title', 'avg_movie_rating', 'y_pu', 'imdb_url'],
                         hide_index=True,
-                        key = 1 
                     )
-                    st.write(st.session_state[1])
                 
                 with st.container():
                     st.caption("Movie Night AVG Rate - Average rate calculated by movie night recommender model.")

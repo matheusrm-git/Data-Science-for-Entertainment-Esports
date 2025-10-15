@@ -227,7 +227,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
             filter_container = st.container(horizontal= True, horizontal_alignment='center', width=500)
             with filter_container:
                 year_filter = st.slider('Release Year', 1874, 2025, 2000, 1)
-                output_samples = st.selectbox('How many movies you want?', [5,10,15,20],index=None, placeholder="Choose...")
+                output_samples = st.selectbox('How many movies you want?', [5,10,15,20,30,50],index=None, placeholder="Choose...")
 
         buttons_container = st.container(horizontal=True)
         with buttons_container:
@@ -285,8 +285,8 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                         output.head(output_samples).drop(columns=['movieId']),
                         column_config={
                             'title' : ' Movie Title',
-                            'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f'),
-                            'y_pu' : st.column_config.NumberColumn('Recommender Pred.', format='%.2f'),
+                            'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f',width='small'),
+                            'y_pu' : st.column_config.NumberColumn('Recommender Pred.', format='%.2f', width='small'),
                             'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link')
                         },
                         hide_index=True,

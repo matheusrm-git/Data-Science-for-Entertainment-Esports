@@ -289,7 +289,6 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                             'y_pu' : st.column_config.NumberColumn('Recommender Pred.', format='%.2f'),
                             'imdb_url' : st.column_config.LinkColumn('URL', display_text='IMDB Link')
                         },
-                        disabled=['title', 'avg_movie_rating', 'y_pu', 'imdb_url'],
                         hide_index=True,
                     )
                 

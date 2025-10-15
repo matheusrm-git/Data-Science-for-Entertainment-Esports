@@ -212,7 +212,7 @@ def add_bg_from_url():
             """
             <style>
             .stApp {
-                background-image: url("cinema/Movie_Recommender/img/movie_night_logo.png");
+                background-image: url("https://github.com/matheusrm-git/Data_Science_for_Entertainment_Esports/blob/main/cinema/Movie_Recommender/img/background.jpg");
                 background-size: cover;
                 background-attachment: fixed;
             }

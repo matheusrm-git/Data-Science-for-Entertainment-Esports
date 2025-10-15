@@ -259,6 +259,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                             rating_input[i] = st.slider('How much do you like?', 0.0, 5.0, 0.0, 0.5, key='rating_'+str(i))
 
         # "GIVE ME MOVIE RECOMMENDATIONS !" Button
+        st.caption('Obs.: More information you give, more personalized the recommendations will be.')
         recommend_b_container = st.container(horizontal= True, horizontal_alignment='center')
         with recommend_b_container:
             recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !')
@@ -279,7 +280,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                 if not output_samples:
                     output_samples = 10
 
-                with st.container(height=450):
+                with st.container():
                     st.dataframe(
                         output.head(output_samples),
                         column_config={
@@ -293,4 +294,5 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                 
                 with st.container():
                     st.write("Movie Night AVG Rate - Average rate calculated by movie night recommender model.")
-                    st.write("Recommender Pred. - Predicted rate for you based on menu selected options.")
+                    st.write("Recommender Pred. - Predicted rate you would give based on menu selected options.")
+                    

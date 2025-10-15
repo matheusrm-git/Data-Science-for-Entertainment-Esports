@@ -285,6 +285,11 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                 output = make_recommendations(movies_encoded_by_genre, links_df, user_vec, MIN_NUM_RATINGS,USER_COLS, scalerUser, scalerMovies, scalerTarget, year_filter=year_filter)
                 output['seen'] = False
 
+                if 1 in st.session_state:
+                    for idx, state in st.session_state[1]['edited_rows'].items():
+                        if state['seen'] == True:
+                            output = output.drop(idx)
+
                 if not output_samples:
                     output_samples = 10
 

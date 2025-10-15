@@ -296,7 +296,6 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                         },
                         hide_index=True
                     )
-                    st.dataframe(st.session_state.whatched_movies.loc[st.session_state.whatched_movies['moviesId'] == output.head(output_samples)['moviesId']][['moviesId', 'seen']])
 
                 
                 

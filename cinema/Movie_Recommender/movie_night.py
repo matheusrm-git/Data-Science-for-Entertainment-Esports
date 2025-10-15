@@ -281,7 +281,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
                     output_samples = 10
 
                 with st.container(horizontal= True,horizontal_alignment='center'):
-                    with st.container():
+                    with st.container(horizontal= True,horizontal_alignment='center'):
                         st.dataframe(
                             output.head(output_samples).drop(columns=['movieId']),
                             column_config={

@@ -189,8 +189,11 @@ scalerUser,scalerMovies,scalerTarget = load_scalers()
 output_samples = 10
 
 # Initializing session_state attributes and button functions
-if 'whatched_movies' not in st.session_state:
-    st.session_state.whatched_movies = []
+if 'rec_button_pressed' not in st.session_state:
+    st.session_state.rec_button_pressed = False
+
+def press_rec_button():
+    st.session_state.rec_button_pressed = True
     
 
 if 'num_genres' not in st.session_state:
@@ -266,7 +269,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
         st.caption('Obs.: More information you give, more personalized the recommendations will be.')
         recommend_b_container = st.container(horizontal= True, horizontal_alignment='center')
         with recommend_b_container:
-            recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !')
+            recommend_button = st.button('GIVE ME MOVIE RECOMMENDATIONS !', type='primary', on_click=press_rec_button)
 
 
     with st.container(width=900, horizontal_alignment='center'):
@@ -274,7 +277,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
         results = st.container()
         with results:
             st.header('Selected For You:', divider='grey')
-            if recommend_button:
+            if st.session_state.rec_button_pressed:
                 for i in range(st.session_state.num_genres):
                     user_dict[feature_input[i]] = rating_input[i]
                         

@@ -201,15 +201,12 @@ def add_genre(max):
 def clear_genre():
     st.session_state.num_genres = 0
 
-# Initializing a lock for thread safety
-_lock = RLock()
-
 # Initializing user_dict to capture user inputs and generate user vectors
 user_dict = {x:0.0 for x in USER_COLS}
 
 # Setting up home page
 st.set_page_config(page_title='Movie Night', layout='wide')
-
+st.logo('cinema/Movie_Recommender/img/movie_night_logo.png', size='large')
 
 # Title
 with st.container(horizontal=True, horizontal_alignment='center'):

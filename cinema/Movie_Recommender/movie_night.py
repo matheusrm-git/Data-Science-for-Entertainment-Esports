@@ -282,7 +282,7 @@ with st.container(horizontal=True, horizontal_alignment='center'):
 
                 with st.container():
                     st.dataframe(
-                        output.head(output_samples).drop(columns=['movieId']),
+                        output.head(output_samples),
                         column_config={
                             'title' : ' Movie Title',
                             'avg_movie_rating': st.column_config.NumberColumn('Movie Night AVG Rate', format='%.2f'),

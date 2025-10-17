@@ -4,6 +4,7 @@ Welcome to my project repository!
 Here you will find analyses, visualizations, and applications of **Data Science** focused on the **Film**, **Gaming**, and **Competitive E-sports** industries (e.g., *Counter-Strike 2*).  
 I also include experiments with open datasets and projects that showcase my continuous learning journey.
 
+Check out other projects in my [General Projects Github](https://github.com/matheusrm-git/General-Projects)
 ---
 
 ## 📂 Repository Structure
